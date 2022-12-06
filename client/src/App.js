@@ -1,6 +1,6 @@
 import Form from "./components/Form";
 import Hero from "./components/Hero";
-import Pricing from "./components/Pricing";
+import Pricing from "./components/Pricing/Pricing";
 
 function App() {
   return (

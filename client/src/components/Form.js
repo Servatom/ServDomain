@@ -12,7 +12,7 @@ const Form = ({ className }) => {
         <Input
           type="text"
           placeholder="john"
-          className="text-2xl text-center pr-2 "
+          className="text-2xl text-center pr-2 py-1 placeholder:opacity-30 focus::outline focus:outline-2 focus:outline-gray-600"
           value={subdomain}
           onChange={setSubdomain}
         />
