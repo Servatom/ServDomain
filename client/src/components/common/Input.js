@@ -7,7 +7,7 @@ const Input = ({
   placeholder,
   value,
   onChange,
-  enablePlaceholderAnimation = true,
+  enablePlaceholderAnimation = false,
 }) => {
   const [inputSize, setInputSize] = useState(3);
   const [placeholderValue, setPlaceholderValue] = useState(placeholder);
