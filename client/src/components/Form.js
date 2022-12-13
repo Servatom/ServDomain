@@ -1,9 +1,18 @@
 import { useState } from "react";
-
 const { default: Input } = require("./common/Input");
 
 const Form = ({ className }) => {
+  const errorVariants = {
+    success: "text-green-400",
+    error: "text-red-400",
+    neutral: "text-gray-400",
+  };
   const [subdomain, setSubdomain] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState({
+    text: "test",
+    variant: "neutral",
+  });
   return (
     <div className="flex flex-col m-4 p-4">
       <form
@@ -18,9 +27,15 @@ const Form = ({ className }) => {
         />
         <span className="text-2xl font-semibold ml-1">.servatom.com</span>
       </form>
-      <span className="errorText text-xs font-normal mt-4 text-green-400 mx-auto">
-        Subdomain Available
-      </span>
+      {error && (
+        <span
+          className={`errorText text-xs font-normal mt-5 ${
+            errorVariants[error.variant]
+          } mx-auto`}
+        >
+          {error.text}
+        </span>
+      )}
     </div>
   );
 };
