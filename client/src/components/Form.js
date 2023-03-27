@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Loader from "./common/Loader";
+import axios from "../axios";
 const { default: Input } = require("./common/Input");
 
 const Form = ({ className }) => {
@@ -14,6 +15,17 @@ const Form = ({ className }) => {
     text: "Enter value to check availability",
     variant: "neutral",
   });
+
+  useEffect(() => {
+    axios
+      .get("/dns_records")
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   useEffect(() => {
     setIsLoading(false);
@@ -56,7 +68,7 @@ const Form = ({ className }) => {
       //     });
       //     setIsLoading(false);
     }
-  });
+  }, [subdomain]);
   return (
     <div className="flex flex-col m-4 p-4">
       <form
