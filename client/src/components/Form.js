@@ -17,14 +17,29 @@ const Form = ({ className }) => {
   });
 
   useEffect(() => {
-    axios
-      .get("/dns_records")
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    var myHeaders = new Headers();
+    myHeaders.append(
+      "Authorization",
+      "Bearer P7nU1_3IJI7pln-6FbyGJKcvL8AKnKMddnpk_Yrl"
+    );
+    myHeaders.append(
+      "Cookie",
+      "__cflb=0H28vgHxwvgAQtjUGU56Rb8iNWZVUvXhnxLXpb955W5; __cfruid=b4e4377d9136f48023f72ff821cf994ff007af5d-1679934169"
+    );
+
+    var requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://api.cloudflare.com/client/v4/zones/e17de047110e5c93bcb7e83d4a5a10d7/dns_records",
+      requestOptions
+    )
+      .then((response) => response.text())
+      .then((result) => console.log(result))
+      .catch((error) => console.log("error", error));
   }, []);
 
   useEffect(() => {
