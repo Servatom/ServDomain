@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const axios = require("../../axios");
 
 router.get("/", (req, res, next) => {
   res.status(200).json({
@@ -23,8 +24,7 @@ router.post("/", (req, res, next) => {
   }
 });
 
-router.get("/check", (req, res, next) => {
-  console.log(req.query);
+router.get("/check", async (req, res, next) => {
   if (!req.query)
     res.status(400).json({
       error: "Must pass subdomain",
@@ -32,11 +32,36 @@ router.get("/check", (req, res, next) => {
   else {
     const subdomain = req.query.subdomain;
 
-    res.status(200).json({
-      status: true,
-      createdSubdomain: subdomain,
-    });
+    const subdomainList = await getSubdomainList();
+
+    if (subdomainList.includes(subdomain + ".servatom.com")) {
+      res.status(200).json({
+        status: false,
+        message: "Subdomain already exists",
+      });
+    } else {
+      res.status(200).json({
+        status: true,
+        createdSubdomain: subdomain,
+      });
+    }
   }
 });
+
+const getSubdomainList = async () => {
+  const subdomainList = [];
+  await axios
+    .get("/dns_records")
+    .then((response) => {
+      response.data.result.forEach((record) => {
+        subdomainList.push(record.name);
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+  return subdomainList;
+};
 
 module.exports = router;
