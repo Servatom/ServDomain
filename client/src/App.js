@@ -1,14 +1,28 @@
-import Form from "./components/Form";
-import Hero from "./components/Hero";
-import Pricing from "./components/Pricing/Pricing";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  Redirect,
+} from "react-router-dom";
+import Landing from "./pages/Landing";
+import PlanPage from "./pages/Plan";
 
 function App() {
   return (
-    <div className="w-full h-full min-h-screen flex flex-col text-gray-300 items-center px-40">
-      <Hero />
-      <Form className="mt-12" />
-      <Pricing />
-    </div>
+    <Router>
+      <Switch>
+        <Route path="/" exact>
+          <Landing />
+        </Route>
+        <Route path={"/:plan"} exact>
+          <PlanPage />
+        </Route>
+        <Route path={"*"}>
+          <Redirect to="/" />
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 

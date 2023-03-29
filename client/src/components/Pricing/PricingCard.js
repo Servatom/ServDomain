@@ -2,6 +2,20 @@ import Button from "../common/Button";
 import Feature from "./Feature";
 
 const PricingCard = ({ pricing }) => {
+  let pricingFreq = "/day";
+  switch (pricing.frequency) {
+    case "Daily":
+      pricingFreq = "/day";
+      break;
+    case "Monthly":
+      pricingFreq = "/month";
+      break;
+    case "Yearly":
+      pricingFreq = "/year";
+      break;
+    default:
+      pricingFreq = "/day";
+  }
   return (
     <div className="mb-4 overflow-hidden rounded-lg shadow-lg">
       <div className="px-6 py-8 bg-white dark:bg-gray-800 sm:p-10 sm:pb-6">
@@ -16,7 +30,7 @@ const PricingCard = ({ pricing }) => {
           </span>
           ₹{pricing.price}
           <span className="pt-6 ml-1 text-lg font-medium leading-8 text-gray-500 dark:text-gray-400">
-            {pricing.frequency === "Monthly" ? "/month" : "/year"}
+            {pricingFreq}
           </span>
         </div>
       </div>
@@ -29,7 +43,7 @@ const PricingCard = ({ pricing }) => {
           ))}
         </ul>
         <div className="mt-6">
-          <Button to={`/buy?plan=${pricing.name}`}>
+          <Button to={`/${pricing.name.toLowerCase()}`}>
             <span>Start {pricing.name} plan</span>
           </Button>
         </div>
