@@ -9,15 +9,13 @@ router.get("/", (req, res, next) => {
 });
 
 router.post("/", (req, res, next) => {
-  if (!req.body)
-    res.status(403).json({
+  if (!req.body.subdomain) {
+    return res.status(400).json({
       error: "Must pass subdomain",
     });
-  else {
-    const subdomain = {
-      subdomain: req.body.subdomain,
-    };
-    res.status(201).json({
+  } else {
+    const subdomain = req.body.subdomain;
+    return res.status(201).json({
       message: "Handling POST requests to /subdomain",
       createdSubdomain: subdomain,
     });
