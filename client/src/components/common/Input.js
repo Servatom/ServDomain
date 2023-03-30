@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useState } from "react";
 
 const Input = ({
@@ -8,9 +8,12 @@ const Input = ({
   value,
   onChange,
   enablePlaceholderAnimation = false,
+  size,
+  ...rest
 }) => {
-  const [inputSize, setInputSize] = useState(3);
+  const [inputSize, setInputSize] = useState(size || 3);
   const [placeholderValue, setPlaceholderValue] = useState(placeholder);
+
   const placeholderList = [
     "iamsocool",
     "john",
@@ -29,14 +32,20 @@ const Input = ({
         if (i === placeholderList.length) i = 0;
       }, 2000);
       return () => clearInterval(interval);
+    } else {
+      setPlaceholderValue(placeholder);
     }
-  }, []);
+  }, [placeholder, enablePlaceholderAnimation, value]);
 
   useEffect(() => {
     if (value) {
-      setInputSize(value.length);
+      if (value.length > 8) setInputSize(value.length);
+      else setInputSize(8);
     } else {
-      if (placeholderValue) setInputSize(placeholderValue.length);
+      if (placeholderValue) {
+        if (placeholderValue.length > 8) setInputSize(placeholderValue.length);
+        else setInputSize(8);
+      }
     }
   }, [value, placeholderValue]);
 
@@ -50,6 +59,7 @@ const Input = ({
         onChange(e.target.value);
       }}
       size={inputSize}
+      {...rest}
     />
   );
 };

@@ -1,6 +1,7 @@
 import { useParams, Redirect } from "react-router-dom";
 import { features, plans } from "../constants/pricing";
 import Feature from "../components/Pricing/Feature";
+import AddForm from "../components/Plan/AddForm";
 
 const PlanPage = () => {
   const params = useParams();
@@ -30,13 +31,14 @@ const PlanPage = () => {
             {priceFreq}
           </span>
         </h1>
-        <div className="flex flex-row justify-between items-center mt-24 max-w-[1024px] w-full mx-auto ">
+        <div className="flex flex-row justify-between items-center mt-20 max-w-[1024px] w-full mx-auto ">
           {features[params.plan].map((feature, index) => (
             <div key={index} className="flex flex-row text-xl">
               <Feature>{feature}</Feature>
             </div>
           ))}
         </div>
+        <AddForm />
       </div>
     );
   }
