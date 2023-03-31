@@ -2,6 +2,8 @@ import { useParams, Redirect } from "react-router-dom";
 import { features, plans } from "../constants/pricing";
 import Feature from "../components/Pricing/Feature";
 import AddForm from "../components/Plan/AddForm";
+import RecordsTable from "../components/Plan/RecordsTable";
+import { records } from "../constants/records";
 
 const PlanPage = () => {
   const params = useParams();
@@ -23,22 +25,27 @@ const PlanPage = () => {
         : "/year";
     return (
       <div className="p-16 text-gray-300">
-        <h1 className="font-bold text-5xl">
-          {planTitle}{" "}
-          <span className="font-semibold text-3xl text-gray-600 ml-4">
-            {" "}
-            @ ₹{plan.price}
-            {priceFreq}
-          </span>
-        </h1>
-        <div className="flex flex-row justify-between items-center mt-20 max-w-[1024px] w-full mx-auto ">
-          {features[params.plan].map((feature, index) => (
-            <div key={index} className="flex flex-row text-xl">
-              <Feature>{feature}</Feature>
-            </div>
-          ))}
+        <div className="flex flex-row justify-between items-center">
+          <div className="flex flex-col items-start w-full">
+            <h1 className="font-bold text-5xl">{planTitle} </h1>
+            <span className="font-semibold text-3xl text-gray-600 mt-2">
+              @ ₹{plan.price}
+              {priceFreq}
+            </span>
+          </div>
+          <div className="flex flex-row justify-between items-center max-w-[1024px] w-full ml-16 mt-8">
+            {features[params.plan].map((feature, index) => (
+              <div key={index} className="flex flex-row text-xl">
+                <Feature>{feature}</Feature>
+              </div>
+            ))}
+          </div>
         </div>
         <AddForm />
+        <div className="mt-20 w-full">
+          <h1 className="text-xl font-medium text-center">Your Records</h1>
+          <RecordsTable records={records} />
+        </div>
       </div>
     );
   }

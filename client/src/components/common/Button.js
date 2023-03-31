@@ -1,7 +1,7 @@
 const Button = ({ to, onClick, className, children }) => {
   return (
     <div
-      className={"mt-6 rounded-md shadow cursor-pointer " + className}
+      className={"rounded-md shadow cursor-pointer " + className}
       onClick={() => {
         onClick && onClick();
       }}

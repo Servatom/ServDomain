@@ -68,7 +68,7 @@ const AddForm = () => {
           </label>
         </div>
       </div>
-      <div className="flex flex-row gap-12 mt-8 items-end">
+      <div className="flex flex-row gap-12 mt-12 items-end">
         <div className="flex flex-col justify-start items-start">
           <label htmlFor="subdomain" className="text-sm mb-2">
             Subdomain
