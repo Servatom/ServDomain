@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import LoginIcon from "./components/LoginIcon";
 import Landing from "./pages/Landing";
+import Login from "./pages/Login";
 import PlanPage from "./pages/Plan";
 
 function App() {
@@ -14,6 +15,9 @@ function App() {
     <Router>
       <LoginIcon />
       <Switch>
+        <Route path="/login">
+          <Login />
+        </Route>
         <Route path="/" exact>
           <Landing />
         </Route>

@@ -4,7 +4,7 @@ import Button from "./common/Button";
 
 const LoginIcon = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const MenuContent = () => {
     if (isLoggedIn)
       return (
@@ -23,7 +23,9 @@ const LoginIcon = () => {
     else
       return (
         <div className="p-3">
-          <Button className="w-48 mt-0">Log In</Button>;
+          <Button className="w-48 mt-0" to={"/login"}>
+            Log In
+          </Button>
         </div>
       );
   };
