@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "../components/common/Button";
-import validator from "validator";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { useHistory } from "react-router-dom";
 import { validateOtp, validatePhoneNumber } from "../config";
@@ -9,12 +8,10 @@ const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
   const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [isOtpValid, setIsOtpValid] = useState(false);
 
   const otpInputRef = useRef(null);
-
   const history = useHistory();
 
   const handlePhoneNumberChange = (e) => {
@@ -35,9 +32,17 @@ const Login = () => {
 
   const handleSendOtp = () => {
     if (isPhoneValid) {
+      const formattedPhoneNumber = "+91" + phoneNumber;
+
       setOtpSent(true);
       otpInputRef.current.focus();
-    }
+    } else return;
+  };
+
+  const handleVerifyOtp = () => {
+    if (!isOtpValid) return;
+
+    // verify otp
   };
 
   useEffect(() => {
@@ -64,7 +69,7 @@ const Login = () => {
           <div className="flex flex-col gap-1 w-full">
             <label className="text-gray-400">Enter Phone Number</label>
             <input
-              className={`rounded-lg flex w-auto px-3 py-2 text-xl outline-none font-semibold bg-gray-800 bg-opacity-40 backdrop-blur-md text-gray-300 disabled:cursor-not-allowed`}
+              className={`rounded-lg flex w-auto px-3 py-2 text-xl outline-none font-semibold bg-gray-800 bg-opacity-40 backdrop-blur-md text-gray-300 disabled:text-gray-400 duration-200 disabled:cursor-not-allowed placeholder:text-gray-700`}
               placeholder={"+91 69420 69420"}
               value={phoneNumber}
               onChange={(e) => {
@@ -76,11 +81,12 @@ const Login = () => {
           <div className="flex flex-col gap-1 w-full">
             <label className="text-gray-400">Enter OTP</label>
             <input
-              className={`rounded-lg flex w-auto px-3 py-2 text-xl outline-none font-semibold bg-gray-800 bg-opacity-40 backdrop-blur-md text-gray-300`}
+              className={`rounded-lg flex w-auto px-3 py-2 text-xl outline-none font-semibold bg-gray-800 bg-opacity-40 backdrop-blur-md text-gray-300 disabled:cursor-not-allowed placeholder:text-gray-700`}
               placeholder={"XXX XXX"}
               value={otp}
               onChange={handleOtpChange}
               ref={otpInputRef}
+              disabled={!otpSent}
             />
           </div>
           {!otpSent && (
@@ -93,7 +99,11 @@ const Login = () => {
             </Button>
           )}
           {otpSent && (
-            <Button className={"w-full mt-4"} disabled={!isOtpValid}>
+            <Button
+              className={"w-full mt-4"}
+              disabled={!isOtpValid}
+              onClick={handleVerifyOtp}
+            >
               {isOtpValid ? "Log in" : "Enter OTP"}
             </Button>
           )}
@@ -105,6 +115,7 @@ const Login = () => {
           </span>
         </div>
       </div>
+      <div id="recaptcha-container"></div>
     </>
   );
 };

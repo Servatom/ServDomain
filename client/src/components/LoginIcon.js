@@ -1,19 +1,22 @@
 import { useState } from "react";
 import { BiUser } from "react-icons/bi";
+import { useHistory } from "react-router-dom";
 import Button from "./common/Button";
 
 const LoginIcon = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const phoneNumber = "+91 1234567890";
+
   const MenuContent = () => {
-    if (isLoggedIn)
+    if (loggedIn)
       return (
         <div className="flex flex-col items-start justify-center w-max text-base">
           <span className="p-2 px-4 border-b border-slate-700 w-full cursor-default font-bold">
-            +91 96250 56985
+            {phoneNumber}
           </span>
           <span className="p-2 px-4 w-full hover:bg-slate-500 hover:bg-opacity-30">
-            View Profile
+            Manage Records
           </span>
           <span className="p-2 px-4 w-full hover:bg-slate-500 hover:bg-opacity-30">
             Logout
@@ -23,7 +26,13 @@ const LoginIcon = () => {
     else
       return (
         <div className="p-3">
-          <Button className="w-48 mt-0" to={"/login"}>
+          <Button
+            className="w-48 mt-0"
+            to={"/login"}
+            onClick={() => {
+              setIsMenuOpen(false);
+            }}
+          >
             Log In
           </Button>
         </div>
