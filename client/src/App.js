@@ -11,6 +11,7 @@ import PlanPage from "./pages/Plan";
 import { auth } from "./firebase.config";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
+import TermsAndConditions from "./pages/TnC";
 
 function App() {
   useEffect(() => {
@@ -35,6 +36,9 @@ function App() {
         </Route>
         <Route path="/" exact>
           <Landing />
+        </Route>
+        <Route path={"/tnc"}>
+          <TermsAndConditions />
         </Route>
         <Route path={"/:plan"} exact>
           <PlanPage />
