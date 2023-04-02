@@ -16,7 +16,7 @@ export const plans = [
   {
     id: 3,
     name: "Annual",
-    price: 150,
+    price: 100,
     frequency: "Yearly",
     features: ["CNAME Record", "A Record", "Hassle-free for an year"],
   },

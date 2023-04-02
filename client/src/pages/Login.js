@@ -71,7 +71,9 @@ const Login = () => {
           otpInputRef.current.focus();
         })
         .catch((error) => {
-          alert(error);
+          console.error(error);
+          customToast("Error sending OTP. Try again later.");
+          setLoading(false);
           // reset recaptcha
           window.recaptchaVerifier.render().then((widgetId) => {
             window.grecaptcha.reset(widgetId);
@@ -100,7 +102,8 @@ const Login = () => {
         // ...
       })
       .catch((error) => {
-        alert(error);
+        console.error(error);
+        customToast("Wrong OTP. Try again.");
       });
   };
 
