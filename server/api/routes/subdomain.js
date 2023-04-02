@@ -34,13 +34,11 @@ router.get("/check", async (req, res, next) => {
 
     if (subdomainList.includes(subdomain + ".servatom.com")) {
       res.status(200).json({
-        status: false,
-        message: "Subdomain already exists",
+        available: false,
       });
     } else {
       res.status(200).json({
-        status: true,
-        createdSubdomain: subdomain,
+        available: true,
       });
     }
   }

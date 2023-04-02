@@ -34,30 +34,37 @@ const Form = ({ className }) => {
         text: "Checking availability",
         variant: "neutral",
       });
-      // fetch(`/api/checkSubdomain/${subdomain}`)
-      //   .then((res) => res.json())
-      //   .then((data) => {
-      //     if (data.available) {
-      //       setError({
-      //         text: "Subdomain is available",
-      //         variant: "success",
-      //       });
-      //     } else {
-      //       setError({
-      //         text: "Subdomain is not available",
-      //         variant: "error",
-      //       });
-      //     }
-      //     setIsLoading(false);
-      //   })
-      //   .catch((err) => {
-      //     setError({
-      //       text: "Something went wrong",
-      //       variant: "error",
-      //     });
-      //     setIsLoading(false);
+      const timeoutId = setTimeout(() => {
+        if (subdomain.length >= 3) {
+          axios
+            .get(`/subdomain/check?subdomain=${subdomain}`)
+            .then((res) => {
+              if (res.data.available) {
+                setError({
+                  text: "Subdomain is available",
+                  variant: "success",
+                });
+              } else {
+                setError({
+                  text: "Subdomain is not available",
+                  variant: "error",
+                });
+              }
+              setIsLoading(false);
+            })
+            .catch((err) => {
+              setError({
+                text: "Something went wrong",
+                variant: "error",
+              });
+              setIsLoading(false);
+            });
+        }
+      }, 1000);
+      return () => clearTimeout(timeoutId);
     }
   }, [subdomain]);
+
   return (
     <div className="flex flex-col m-4 p-4">
       <form
