@@ -3,6 +3,8 @@ import Button from "../components/common/Button";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { useHistory } from "react-router-dom";
 import { validateOtp, validatePhoneNumber } from "../config";
+import { auth } from "../firebase.config";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -30,19 +32,66 @@ const Login = () => {
     }
   };
 
+  const onCaptchaVerify = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        "sign-in-button",
+        {
+          size: "invisible",
+          callback: (response) => {
+            // reCAPTCHA solved, allow signInWithPhoneNumber.
+            handleSendOtp();
+          },
+        },
+        auth
+      );
+    }
+  };
+
   const handleSendOtp = () => {
     if (isPhoneValid) {
+      onCaptchaVerify();
       const formattedPhoneNumber = "+91" + phoneNumber;
 
-      setOtpSent(true);
-      otpInputRef.current.focus();
+      const appVerifier = window.recaptchaVerifier;
+      signInWithPhoneNumber(auth, formattedPhoneNumber, appVerifier)
+        .then((confirmationResult) => {
+          // SMS sent. Prompt user to type the code from the message, then sign the
+          // user in with confirmationResult.confirm(code).
+
+          window.confirmationResult = confirmationResult;
+          setOtpSent(true);
+          otpInputRef.current.focus();
+        })
+        .catch((error) => {
+          alert(error);
+          // reset recaptcha
+          window.recaptchaVerifier.render().then((widgetId) => {
+            window.grecaptcha.reset(widgetId);
+          });
+        });
     } else return;
   };
 
   const handleVerifyOtp = () => {
     if (!isOtpValid) return;
-
     // verify otp
+
+    window.confirmationResult
+      .confirm(otp)
+      .then((result) => {
+        // User signed in successfully.
+        const user = result.user;
+        console.log(user);
+        localStorage.setItem("loggedIn", true);
+        setTimeout(() => {
+          history.push("/");
+        }, 2000);
+        // ...
+      })
+      .catch((error) => {
+        alert(error);
+      });
   };
 
   useEffect(() => {
@@ -55,6 +104,7 @@ const Login = () => {
 
   return (
     <>
+      <div id="sign-in-button"></div>
       <h1 className="font-semibold text-4xl p-12 text-gray-300 flex flex-row items-center">
         <IoArrowBackOutline
           className="text-gray-300 mr-6 cursor-pointer"
@@ -115,7 +165,6 @@ const Login = () => {
           </span>
         </div>
       </div>
-      <div id="recaptcha-container"></div>
     </>
   );
 };

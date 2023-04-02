@@ -1,6 +1,8 @@
+import { signOut } from "firebase/auth";
 import { useState } from "react";
 import { BiUser } from "react-icons/bi";
 import { useHistory } from "react-router-dom";
+import { auth } from "../firebase.config";
 import Button from "./common/Button";
 
 const LoginIcon = () => {
@@ -9,17 +11,32 @@ const LoginIcon = () => {
   const history = useHistory();
   const phoneNumber = "+91 1234567890";
 
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        setLoggedIn(false);
+        setIsMenuOpen(false);
+        localStorage.removeItem("loggedIn");
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  };
+
   const MenuContent = () => {
-    if (loggedIn)
+    if (auth.currentUser)
       return (
         <div className="flex flex-col items-start justify-center w-max text-base">
           <span className="p-2 px-4 border-b border-slate-700 w-full cursor-default font-bold">
-            {phoneNumber}
+            {auth.currentUser.phoneNumber}
           </span>
           <span className="p-2 px-4 w-full hover:bg-slate-500 hover:bg-opacity-30">
             Manage Records
           </span>
-          <span className="p-2 px-4 w-full hover:bg-slate-500 hover:bg-opacity-30">
+          <span
+            className="p-2 px-4 w-full hover:bg-slate-500 hover:bg-opacity-30"
+            onClick={handleLogout}
+          >
             Logout
           </span>
         </div>

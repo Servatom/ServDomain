@@ -8,24 +8,23 @@ import LoginIcon from "./components/LoginIcon";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import PlanPage from "./pages/Plan";
-import { useEffect } from "react";
+import { auth } from "./firebase.config";
 
 function App() {
-  const loggedIn = localStorage.getItem("loggedIn");
   return (
     <Router>
       <LoginIcon />
       <Switch>
         <Route path="/login">
-          {loggedIn && <Redirect to="/" />}
-          {!loggedIn && <Login />}
+          {auth.currentUser && <Redirect to="/" />}
+          {!auth.currentUser && <Login />}
         </Route>
         <Route path="/" exact>
           <Landing />
         </Route>
         <Route path={"/:plan"} exact>
-          {!loggedIn && <Redirect to="/login" />}
-          {loggedIn && <PlanPage />}
+          {!auth.currentUser && <Redirect to="/login" />}
+          {auth.currentUser && <PlanPage />}
         </Route>
         <Route path={"*"}>
           <Redirect to="/" />
