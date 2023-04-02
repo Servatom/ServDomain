@@ -17,7 +17,7 @@ const PlanPage = () => {
   if (!isPlanValid) {
     return <Redirect to="/" />;
   } else if (!auth.currentUser) {
-    return <Redirect to="/login" />;
+    return <Redirect to={`/login?redirect=${params.plan}`} />;
   } else {
     let plan = plans.find((plan) => plan.name.toLowerCase() === params.plan);
     let priceFreq =

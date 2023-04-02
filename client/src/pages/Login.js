@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import Button from "../components/common/Button";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { useHistory } from "react-router-dom";
+import { ImSpinner8 } from "react-icons/im";
 import { validateOtp, validatePhoneNumber } from "../config";
 import { auth } from "../firebase.config";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import customToast from "../components/common/CustomToast";
 
 const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -12,9 +14,12 @@ const Login = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [isPhoneValid, setIsPhoneValid] = useState(false);
   const [isOtpValid, setIsOtpValid] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const otpInputRef = useRef(null);
   const history = useHistory();
+  const query = new URLSearchParams(history.location.search);
+  const redirect = query.get("redirect");
 
   const handlePhoneNumberChange = (e) => {
     if (e.target.value.length <= 10) {
@@ -50,6 +55,7 @@ const Login = () => {
 
   const handleSendOtp = () => {
     if (isPhoneValid) {
+      setLoading(true);
       onCaptchaVerify();
       const formattedPhoneNumber = "+91" + phoneNumber;
 
@@ -61,6 +67,7 @@ const Login = () => {
 
           window.confirmationResult = confirmationResult;
           setOtpSent(true);
+          setLoading(false);
           otpInputRef.current.focus();
         })
         .catch((error) => {
@@ -76,17 +83,20 @@ const Login = () => {
   const handleVerifyOtp = () => {
     if (!isOtpValid) return;
     // verify otp
-
+    setLoading(true);
     window.confirmationResult
       .confirm(otp)
       .then((result) => {
         // User signed in successfully.
         const user = result.user;
         console.log(user);
+        setLoading(false);
+        customToast("Logged in successfully!");
         localStorage.setItem("user", JSON.stringify(auth.currentUser));
         setTimeout(() => {
-          history.push("/");
-        }, 2000);
+          // check from where user came to login page and redirect to that page
+          history.push(redirect ? redirect : "/");
+        }, 1000);
         // ...
       })
       .catch((error) => {
@@ -145,6 +155,11 @@ const Login = () => {
               disabled={!isPhoneValid}
               onClick={handleSendOtp}
             >
+              {loading && (
+                <div className="animate-spin mr-3">
+                  <ImSpinner8 />
+                </div>
+              )}
               Send OTP
             </Button>
           )}
@@ -154,6 +169,11 @@ const Login = () => {
               disabled={!isOtpValid}
               onClick={handleVerifyOtp}
             >
+              {loading && (
+                <div className="animate-spin mr-3">
+                  <ImSpinner8 />
+                </div>
+              )}
               {isOtpValid ? "Log in" : "Enter OTP"}
             </Button>
           )}

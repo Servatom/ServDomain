@@ -4,6 +4,7 @@ import { BiUser } from "react-icons/bi";
 import { useHistory } from "react-router-dom";
 import { auth } from "../firebase.config";
 import Button from "./common/Button";
+import customToast from "./common/CustomToast";
 
 const LoginIcon = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,7 +14,9 @@ const LoginIcon = () => {
     signOut(auth)
       .then(() => {
         setIsMenuOpen(false);
+        customToast("Logged out successfully!");
         localStorage.removeItem("user");
+        history.push("/");
       })
       .catch((error) => {
         alert(error);

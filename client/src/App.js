@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import PlanPage from "./pages/Plan";
 import { auth } from "./firebase.config";
 import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   useEffect(() => {
@@ -20,6 +21,12 @@ function App() {
 
   return (
     <Router>
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          duration: 3000,
+        }}
+      />
       <LoginIcon />
       <Switch>
         <Route path="/login">
