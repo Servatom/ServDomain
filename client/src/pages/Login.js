@@ -83,7 +83,7 @@ const Login = () => {
         // User signed in successfully.
         const user = result.user;
         console.log(user);
-        localStorage.setItem("loggedIn", true);
+        localStorage.setItem("user", JSON.stringify(auth.currentUser));
         setTimeout(() => {
           history.push("/");
         }, 2000);

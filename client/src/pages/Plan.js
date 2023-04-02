@@ -4,6 +4,7 @@ import Feature from "../components/Pricing/Feature";
 import AddForm from "../components/Plan/AddForm";
 import RecordsTable from "../components/Plan/RecordsTable";
 import { records } from "../constants/records";
+import { auth } from "../firebase.config";
 
 const PlanPage = () => {
   const params = useParams();
@@ -15,6 +16,8 @@ const PlanPage = () => {
 
   if (!isPlanValid) {
     return <Redirect to="/" />;
+  } else if (!auth.currentUser) {
+    return <Redirect to="/login" />;
   } else {
     let plan = plans.find((plan) => plan.name.toLowerCase() === params.plan);
     let priceFreq =

@@ -9,8 +9,15 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import PlanPage from "./pages/Plan";
 import { auth } from "./firebase.config";
+import { useEffect } from "react";
 
 function App() {
+  useEffect(() => {
+    // retrieve user from local storage
+    const user = JSON.parse(localStorage.getItem("user"));
+    user && auth.updateCurrentUser(user);
+  });
+
   return (
     <Router>
       <LoginIcon />
@@ -23,8 +30,7 @@ function App() {
           <Landing />
         </Route>
         <Route path={"/:plan"} exact>
-          {!auth.currentUser && <Redirect to="/login" />}
-          {auth.currentUser && <PlanPage />}
+          <PlanPage />
         </Route>
         <Route path={"*"}>
           <Redirect to="/" />

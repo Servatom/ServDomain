@@ -7,16 +7,13 @@ import Button from "./common/Button";
 
 const LoginIcon = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
   const history = useHistory();
-  const phoneNumber = "+91 1234567890";
 
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
-        setLoggedIn(false);
         setIsMenuOpen(false);
-        localStorage.removeItem("loggedIn");
+        localStorage.removeItem("user");
       })
       .catch((error) => {
         alert(error);
