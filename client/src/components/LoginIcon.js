@@ -6,6 +6,7 @@ import Button from "./common/Button";
 const LoginIcon = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const history = useHistory();
   const phoneNumber = "+91 1234567890";
 
   const MenuContent = () => {
@@ -28,9 +29,9 @@ const LoginIcon = () => {
         <div className="p-3">
           <Button
             className="w-48 mt-0"
-            to={"/login"}
             onClick={() => {
               setIsMenuOpen(false);
+              history.push("/login");
             }}
           >
             Log In

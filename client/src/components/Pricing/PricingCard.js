@@ -1,7 +1,9 @@
+import { useHistory } from "react-router-dom";
 import Button from "../common/Button";
 import Feature from "./Feature";
 
 const PricingCard = ({ pricing }) => {
+  const history = useHistory();
   let pricingFreq = "/day";
   switch (pricing.frequency) {
     case "Daily":
@@ -43,7 +45,11 @@ const PricingCard = ({ pricing }) => {
           ))}
         </ul>
         <div className="mt-6">
-          <Button to={`/${pricing.name.toLowerCase()}`}>
+          <Button
+            onClick={() => {
+              history.push(`/${pricing.name.toLowerCase()}`);
+            }}
+          >
             <span>Start {pricing.name} plan</span>
           </Button>
         </div>
