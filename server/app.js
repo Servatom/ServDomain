@@ -1,7 +1,12 @@
 const express = require("express");
 const morgan = require("morgan");
+const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const subdomainRoutes = require("./api/routes/subdomain");
+
+mongoose.connect(
+  `mongodb+srv://yash22arora:${process.env.MONGODB_PASSWD}@servdomain.e6tn8tj.mongodb.net/?retryWrites=true&w=majority`
+);
 
 const app = express();
 
