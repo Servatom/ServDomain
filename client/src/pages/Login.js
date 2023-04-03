@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "../components/common/Button";
 import { IoArrowBackOutline } from "react-icons/io5";
-import { useHistory } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import { ImSpinner8 } from "react-icons/im";
 import { validateOtp, validatePhoneNumber } from "../config";
 import { auth } from "../firebase.config";
@@ -68,6 +68,7 @@ const Login = () => {
           window.confirmationResult = confirmationResult;
           setOtpSent(true);
           setLoading(false);
+          customToast("OTP sent!");
           otpInputRef.current.focus();
         })
         .catch((error) => {
@@ -114,6 +115,8 @@ const Login = () => {
   useEffect(() => {
     setIsOtpValid(validateOtp(otp));
   }, [otp]);
+
+  if (auth.currentUser) return <Redirect to="/" />;
 
   return (
     <>

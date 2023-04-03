@@ -12,13 +12,15 @@ import { auth } from "./firebase.config";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import TermsAndConditions from "./pages/TnC";
+import Profile from "./pages/Profile";
+import Logout from "./pages/Logout";
 
 function App() {
   useEffect(() => {
     // retrieve user from local storage
     const user = JSON.parse(localStorage.getItem("user"));
     user && auth.updateCurrentUser(user);
-  });
+  }, []);
 
   return (
     <Router>
@@ -30,12 +32,17 @@ function App() {
       />
       <LoginIcon />
       <Switch>
-        <Route path="/login">
-          {auth.currentUser && <Redirect to="/" />}
-          {!auth.currentUser && <Login />}
-        </Route>
         <Route path="/" exact>
           <Landing />
+        </Route>
+        <Route path="/login">
+          <Login />
+        </Route>
+        <Route path="/logout">
+          <Logout />
+        </Route>
+        <Route path={"/profile"}>
+          <Profile />
         </Route>
         <Route path={"/tnc"}>
           <TermsAndConditions />

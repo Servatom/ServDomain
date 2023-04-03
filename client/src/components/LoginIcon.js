@@ -1,7 +1,7 @@
 import { signOut } from "firebase/auth";
 import { useState } from "react";
 import { BiUser } from "react-icons/bi";
-import { useHistory } from "react-router-dom";
+import { Redirect, useHistory, useLocation } from "react-router-dom";
 import { auth } from "../firebase.config";
 import Button from "./common/Button";
 import customToast from "./common/CustomToast";
@@ -9,18 +9,12 @@ import customToast from "./common/CustomToast";
 const LoginIcon = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const history = useHistory();
+  let { pathname } = useLocation();
+  let pathnameArray = pathname.split("/");
 
   const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        setIsMenuOpen(false);
-        customToast("Logged out successfully!");
-        localStorage.removeItem("user");
-        history.push("/");
-      })
-      .catch((error) => {
-        alert(error);
-      });
+    setIsMenuOpen(false);
+    return <Redirect to="/logout" />;
   };
 
   const MenuContent = () => {
@@ -30,9 +24,27 @@ const LoginIcon = () => {
           <span className="p-2 px-4 border-b border-slate-700 w-full cursor-default font-bold">
             {auth.currentUser.phoneNumber}
           </span>
-          <span className="p-2 px-4 w-full hover:bg-slate-500 hover:bg-opacity-30">
-            Manage Records
-          </span>
+          {!pathnameArray.includes("profile") ? (
+            <span
+              className="p-2 px-4 w-full hover:bg-slate-500 hover:bg-opacity-30"
+              onClick={() => {
+                setIsMenuOpen(false);
+                history.push("/profile");
+              }}
+            >
+              Manage Records
+            </span>
+          ) : (
+            <span
+              className="p-2 px-4 w-full hover:bg-slate-500 hover:bg-opacity-30"
+              onClick={() => {
+                setIsMenuOpen(false);
+                history.push("/");
+              }}
+            >
+              Home
+            </span>
+          )}
           <span
             className="p-2 px-4 w-full hover:bg-slate-500 hover:bg-opacity-30"
             onClick={handleLogout}
