@@ -3,23 +3,50 @@ import {
   Switch,
   Route,
   Redirect,
+  useHistory,
 } from "react-router-dom";
 import LoginIcon from "./components/LoginIcon";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import PlanPage from "./pages/Plan";
 import { auth } from "./firebase.config";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import TermsAndConditions from "./pages/TnC";
 import Profile from "./pages/Profile";
 import Logout from "./pages/Logout";
+import AuthContext from "./store/auth-context";
+import axios from "./axios";
+import customToast from "./components/common/CustomToast";
 
 function App() {
+  const authCtx = useContext(AuthContext);
+  const history = useHistory();
+
   useEffect(() => {
-    // retrieve user from local storage
-    const user = JSON.parse(localStorage.getItem("user"));
-    user && auth.updateCurrentUser(user);
+    if (authCtx.isLoggedIn) {
+      axios
+        .post(
+          "/user/verify",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${authCtx.token}`,
+            },
+          }
+        )
+        .then((res) => {
+          if (res.status !== 200) {
+            history.push("/logout");
+            customToast("Session expired. Please login again.");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          history.push("/logout");
+          customToast("Session expired. Please login again.");
+        });
+    }
   }, []);
 
   return (

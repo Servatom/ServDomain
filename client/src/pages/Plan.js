@@ -4,9 +4,11 @@ import Feature from "../components/Pricing/Feature";
 import AddForm from "../components/Plan/AddForm";
 import RecordsTable from "../components/Plan/RecordsTable";
 import { records } from "../constants/records";
-import { auth } from "../firebase.config";
+import { useContext } from "react";
+import AuthContext from "../store/auth-context";
 
 const PlanPage = () => {
+  const authCtx = useContext(AuthContext);
   const params = useParams();
   const validPlans = ["personal", "student", "annual"];
   let planTitle = params.plan + " Plan";
@@ -16,7 +18,7 @@ const PlanPage = () => {
 
   if (!isPlanValid) {
     return <Redirect to="/" />;
-  } else if (!auth.currentUser) {
+  } else if (!authCtx.isLoggedIn) {
     return <Redirect to={`/login?redirect=${params.plan}`} />;
   } else {
     let plan = plans.find((plan) => plan.name.toLowerCase() === params.plan);

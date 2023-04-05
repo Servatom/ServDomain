@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Button from "../components/common/Button";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { Redirect, useHistory } from "react-router-dom";
@@ -7,6 +7,8 @@ import { validateOtp, validatePhoneNumber } from "../config";
 import { auth } from "../firebase.config";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import customToast from "../components/common/CustomToast";
+import AuthContext from "../store/auth-context";
+import axios from "../axios";
 
 const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -20,6 +22,7 @@ const Login = () => {
   const history = useHistory();
   const query = new URLSearchParams(history.location.search);
   const redirect = query.get("redirect");
+  const authCtx = useContext(AuthContext);
 
   const handlePhoneNumberChange = (e) => {
     if (e.target.value.length <= 10) {
@@ -90,12 +93,25 @@ const Login = () => {
     window.confirmationResult
       .confirm(otp)
       .then((result) => {
-        // User signed in successfully.
+        // User signed in via firebase successfully.
+
         const user = result.user;
-        console.log(user);
-        setLoading(false);
-        customToast("Logged in successfully!");
-        localStorage.setItem("user", JSON.stringify(auth.currentUser));
+        axios
+          .post("/user/login", {
+            phoneNumber: user.phoneNumber,
+            firebaseUID: user.uid,
+          })
+          .then((res) => {
+            authCtx.login(res.data.data);
+            setLoading(false);
+            customToast("Logged in successfully!");
+          })
+          .catch((err) => {
+            console.error(err);
+            setLoading(false);
+            customToast("Error logging in. Try again later.");
+          });
+
         setTimeout(() => {
           // check from where user came to login page and redirect to that page
           history.push(redirect ? redirect : "/");
@@ -116,7 +132,7 @@ const Login = () => {
     setIsOtpValid(validateOtp(otp));
   }, [otp]);
 
-  if (auth.currentUser) return <Redirect to="/" />;
+  if (authCtx.isLoggedIn) return <Redirect to="/" />;
 
   return (
     <>

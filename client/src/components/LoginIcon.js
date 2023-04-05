@@ -1,14 +1,13 @@
-import { signOut } from "firebase/auth";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { BiUser } from "react-icons/bi";
 import { Redirect, useHistory, useLocation } from "react-router-dom";
-import { auth } from "../firebase.config";
 import Button from "./common/Button";
-import customToast from "./common/CustomToast";
+import AuthContext from "../store/auth-context";
 
 const LoginIcon = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const history = useHistory();
+  const authCtx = useContext(AuthContext);
   let { pathname } = useLocation();
   let pathnameArray = pathname.split("/");
 
@@ -18,11 +17,11 @@ const LoginIcon = () => {
   };
 
   const MenuContent = () => {
-    if (auth.currentUser)
+    if (authCtx.isLoggedIn)
       return (
         <div className="flex flex-col items-start justify-center w-max text-base">
           <span className="p-2 px-4 border-b border-slate-700 w-full cursor-default font-bold">
-            {auth.currentUser.phoneNumber}
+            {authCtx.user.phoneNumber}
           </span>
           {!pathnameArray.includes("profile") ? (
             <span

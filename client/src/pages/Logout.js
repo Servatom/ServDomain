@@ -1,25 +1,15 @@
-import { signOut } from "firebase/auth";
-import { useEffect } from "react";
-import { Redirect, useHistory } from "react-router-dom";
-import customToast from "../components/common/CustomToast";
-import { auth } from "../firebase.config";
+import { useContext, useEffect } from "react";
+import { Redirect } from "react-router-dom";
+import AuthContext from "../store/auth-context";
 
 const Logout = () => {
-  const history = useHistory();
+  const authCtx = useContext(AuthContext);
 
   useEffect(() => {
-    if (!auth.currentUser) return;
+    if (!authCtx.isLoggedIn) return;
 
-    signOut(auth)
-      .then(() => {
-        customToast("Logged out successfully!");
-        localStorage.removeItem("user");
-        history.push("/");
-      })
-      .catch((error) => {
-        alert(error);
-      });
-  });
+    authCtx.logout();
+  }, []);
 
   return <Redirect to="/" />;
 };
