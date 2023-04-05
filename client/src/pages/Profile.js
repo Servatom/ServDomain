@@ -1,15 +1,13 @@
-import { useContext, useState } from "react";
-import { auth } from "../firebase.config";
+import { useContext, useEffect, useState } from "react";
 import { Redirect, useHistory } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import RecordsTable from "../components/Plan/RecordsTable";
-import { records as dummyData } from "../constants/records";
 import AuthContext from "../store/auth-context";
+import axios from "../axios";
 
 const Profile = () => {
   const authCtx = useContext(AuthContext);
   const history = useHistory();
-  const [records, setRecords] = useState(dummyData);
 
   if (!authCtx.isLoggedIn) return <Redirect to="/login" />;
 
@@ -32,7 +30,7 @@ const Profile = () => {
       </div>
       <div className="mt-20 w-full">
         <h1 className="text-xl font-medium text-center">Your Records</h1>
-        <RecordsTable records={records} allowActions={true} />
+        <RecordsTable allowActions={true} />
       </div>
     </div>
   );

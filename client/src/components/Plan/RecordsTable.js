@@ -1,4 +1,28 @@
-const RecordsTable = ({ records, allowActions = false }) => {
+import { useContext, useEffect, useState } from "react";
+import AuthContext from "../../store/auth-context";
+import axios from "../../axios";
+
+const RecordsTable = ({ allowActions = false }) => {
+  const authCtx = useContext(AuthContext);
+  const [records, setRecords] = useState([]);
+
+  useEffect(() => {
+    if (!authCtx.isLoggedIn) return;
+
+    axios
+      .get("/subdomain", {
+        headers: {
+          Authorization: `Bearer ${authCtx.user.token}`,
+        },
+      })
+      .then((res) => {
+        setRecords(res.data.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [authCtx.user.token]);
+
   if (records.length === 0)
     return (
       <div className="w-full mt-8 text-center">

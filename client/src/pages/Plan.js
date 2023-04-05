@@ -3,7 +3,6 @@ import { features, plans } from "../constants/pricing";
 import Feature from "../components/Pricing/Feature";
 import AddForm from "../components/Plan/AddForm";
 import RecordsTable from "../components/Plan/RecordsTable";
-import { records } from "../constants/records";
 import { useContext } from "react";
 import AuthContext from "../store/auth-context";
 
@@ -49,7 +48,7 @@ const PlanPage = () => {
         <AddForm />
         <div className="mt-20 w-full">
           <h1 className="text-xl font-medium text-center">Your Records</h1>
-          <RecordsTable records={records} />
+          <RecordsTable />
         </div>
       </div>
     );

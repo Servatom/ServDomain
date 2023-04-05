@@ -9,7 +9,6 @@ import LoginIcon from "./components/LoginIcon";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import PlanPage from "./pages/Plan";
-import { auth } from "./firebase.config";
 import { useContext, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import TermsAndConditions from "./pages/TnC";
@@ -31,7 +30,7 @@ function App() {
           {},
           {
             headers: {
-              Authorization: `Bearer ${authCtx.token}`,
+              Authorization: `Bearer ${authCtx.user.token}`,
             },
           }
         )
