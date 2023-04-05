@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const subdomainRoutes = require("./api/routes/subdomain");
+const userRoutes = require("./api/routes/user");
 
 mongoose.connect(
   `mongodb+srv://yash22arora:${process.env.MONGODB_PASSWD}@servdomain.e6tn8tj.mongodb.net/?retryWrites=true&w=majority`
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/user", userRoutes);
 app.use("/subdomain", subdomainRoutes);
 
 // Error handling

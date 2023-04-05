@@ -3,10 +3,11 @@ const { default: mongoose } = require("mongoose");
 const router = express.Router();
 const axios = require("../../axios");
 const Subdomain = require("../models/subdomain");
+const checkAuth = require("../middleware/check-auth");
 
-router.get("/", (req, res, next) => {
-  const ownerID = req.headers.authorization;
-  Subdomain.$where({ ownerID: ownerID })
+router.get("/", checkAuth, (req, res, next) => {
+  const ownerID = req.userData.userID;
+  Subdomain.find({ ownerID: ownerID })
     .then((result) => {
       res.status(200).json({
         data: result,
@@ -18,12 +19,9 @@ router.get("/", (req, res, next) => {
         error: err,
       });
     });
-  res.status(200).json({
-    message: "Handling GET requests to /subdomain",
-  });
 });
 
-router.post("/", (req, res, next) => {
+router.post("/", checkAuth, (req, res, next) => {
   const validTypes = ["A", "CNAME"];
   if (
     !req.body.name ||
@@ -41,7 +39,7 @@ router.post("/", (req, res, next) => {
     expiryDate.setDate(expiryDate.getDate() + 30);
     const subdomain = new Subdomain({
       _id: new mongoose.Types.ObjectId(),
-      ownerID: req.headers.authorization,
+      ownerID: req.userData.userID,
       name: req.body.name,
       content: req.body.content,
       type: req.body.type,
@@ -65,6 +63,24 @@ router.post("/", (req, res, next) => {
         });
       });
   }
+});
+
+router.delete("/", checkAuth, (req, res, next) => {
+  const ownerID = req.userData.userID;
+  const subdomainID = req.body.subdomainID;
+  Subdomain.deleteOne({ _id: subdomainID, ownerID: ownerID })
+    .then((result) => {
+      res.status(200).json({
+        message: "Subdomain deleted",
+        data: result,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        error: err,
+      });
+    });
 });
 
 router.get("/check", async (req, res, next) => {
