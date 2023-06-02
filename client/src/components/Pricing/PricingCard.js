@@ -19,8 +19,8 @@ const PricingCard = ({ pricing }) => {
       pricingFreq = "/day";
   }
   return (
-    <div className="mb-4 overflow-hidden rounded-lg shadow-lg">
-      <div className="px-6 py-8 bg-white dark:bg-gray-800 sm:p-10 sm:pb-6">
+    <div className="mb-4 overflow-hidden rounded-lg shadow-lg bg-gray-800 bg-opacity-40 backdrop-blur-lg">
+      <div className="px-6 py-8  sm:p-10 sm:pb-6">
         <div className="flex justify-center">
           <span className="inline-flex px-4 py-1 text-sm font-semibold leading-5 tracking-wide uppercase rounded-full dark:text-white">
             {pricing.name} Plan
@@ -36,7 +36,7 @@ const PricingCard = ({ pricing }) => {
           </span>
         </div>
       </div>
-      <div className="px-6 pt-4 pb-8 bg-white dark:bg-gray-800 sm:p-10 sm:pt-4">
+      <div className="px-6 pt-4 pb-8  sm:p-10 sm:pt-4">
         <ul>
           {pricing.features.map((feature, index) => (
             <li className="flex items-start justify-start mt-4" key={index}>
