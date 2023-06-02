@@ -90,17 +90,39 @@ router.get("/check", async (req, res, next) => {
     });
   else {
     const subdomain = req.query.subdomain;
+    const restrictedSubdomains = [
+      "www",
+      "api",
+      "app",
+      "mail",
+      "blog",
+      "dev",
+      "staging",
+      "beta",
+      "test",
+      "raghav",
+      "yashvardhan",
+      "nikhil",
+      "rupanshi",
+      "rjain",
+      "nbakshi",
+    ];
 
-    const subdomainList = await getSubdomainList();
-
-    if (subdomainList.includes(subdomain + ".servatom.com")) {
+    if (restrictedSubdomains.includes(subdomain)) {
       res.status(200).json({
         available: false,
       });
     } else {
-      res.status(200).json({
-        available: true,
-      });
+      const subdomainList = await getSubdomainList();
+      if (subdomainList.includes(subdomain + ".servatom.com")) {
+        res.status(200).json({
+          available: false,
+        });
+      } else {
+        res.status(200).json({
+          available: true,
+        });
+      }
     }
   }
 });

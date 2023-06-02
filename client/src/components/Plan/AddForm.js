@@ -28,7 +28,10 @@ const AddForm = () => {
       variant: "neutral",
     },
     content: {
-      text: "Enter a valid IPv4 address",
+      text:
+        entryType === "cname"
+          ? "Enter a valid Domain"
+          : "Enter a valid IPv4 address",
       variant: "neutral",
     },
   });
@@ -45,6 +48,15 @@ const AddForm = () => {
       });
       setContentPlaceholder("www.example.com");
       setMaxContentLength(70);
+      setErrors((prevSate) => {
+        return {
+          ...prevSate,
+          content: {
+            text: "Enter a valid Domain",
+            variant: "neutral",
+          },
+        };
+      });
     } else {
       setOptionColour({
         cname: "text-gray-500",
@@ -52,6 +64,15 @@ const AddForm = () => {
       });
       setContentPlaceholder("69.42.0.69");
       setMaxContentLength(15);
+      setErrors((prevSate) => {
+        return {
+          ...prevSate,
+          content: {
+            text: "Enter a valid IPv4 address",
+            variant: "neutral",
+          },
+        };
+      });
     }
   }, [entryType]);
 
