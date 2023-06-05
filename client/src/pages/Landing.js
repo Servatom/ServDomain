@@ -5,7 +5,7 @@ import Pricing from "../components/Pricing/Pricing";
 
 function Landing() {
   return (
-    <div className="w-full h-full min-h-screen flex flex-col text-gray-300 items-center px-40">
+    <div className="w-full h-full min-h-screen flex flex-col text-gray-300 items-center px-12 sm:px-28 lg:px-40">
       <Hero />
       <CheckForm className="mt-12" />
       <span className="p-6 rounded-lg backdrop-blur-md bg-gray-500 bg-opacity-10 mt-8">

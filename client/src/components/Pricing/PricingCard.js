@@ -19,7 +19,7 @@ const PricingCard = ({ pricing }) => {
       pricingFreq = "/day";
   }
   return (
-    <div className="mb-4 overflow-hidden rounded-lg shadow-lg bg-gray-800 bg-opacity-40 backdrop-blur-lg">
+    <div className="mb-4 overflow-hidden rounded-lg shadow-lg bg-gray-800 bg-opacity-40 backdrop-blur-lg max-w-md">
       <div className="px-6 py-8  sm:p-10 sm:pb-6">
         <div className="flex justify-center">
           <span className="inline-flex px-4 py-1 text-sm font-semibold leading-5 tracking-wide uppercase rounded-full dark:text-white">
