@@ -52,7 +52,7 @@ const AddForm = () => {
         return {
           ...prevSate,
           content: {
-            text: "Enter a valid Domain",
+            text: "Enter a valid hostname",
             variant: "neutral",
           },
         };

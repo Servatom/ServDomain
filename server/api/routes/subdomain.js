@@ -23,10 +23,14 @@ router.get("/", checkAuth, (req, res, next) => {
 
 router.post("/", checkAuth, (req, res, next) => {
   const validTypes = ["A", "CNAME"];
+  const plans = ["personal", "student", "annual"];
+  const { name, content, type, plan } = req.body;
+  console.log(name, content, type, plan);
   if (
-    !req.body.name ||
-    !req.body.content ||
-    !validTypes.includes(req.body.type) ||
+    !name ||
+    !content ||
+    !validTypes.includes(type) ||
+    !plans.includes(plan) ||
     !req.headers.authorization
   ) {
     return res.status(400).json({
@@ -34,34 +38,88 @@ router.post("/", checkAuth, (req, res, next) => {
     });
   } else {
     //post to cloudflare and on success save to db
-    //set expiryDate to 30 days from now
-    let expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + 30);
-    const subdomain = new Subdomain({
-      _id: new mongoose.Types.ObjectId(),
-      ownerID: req.userData.userID,
-      name: req.body.name,
-      content: req.body.content,
-      type: req.body.type,
-      expiry: expiryDate, // calculate expiry date from now
-    });
-
-    subdomain
-      .save()
-      .then((result) => {
-        console.log(result);
-        return res.status(201).json({
-          message: "Subdomain added!",
-          data: result,
-        });
+    axios
+      .post("/dns_records", {
+        type: type,
+        name: name,
+        content: content,
+        ttl: 1,
+        proxied: false,
       })
-      .catch((err) => {
-        console.log(err);
+      .then((response) => {
+        console.log(response.data);
+        if (response.data.success) {
+          let expiryDate = new Date();
+          expiryDate.setDate(expiryDate.getDate() + 30);
+          const subdomain = new Subdomain({
+            _id: new mongoose.Types.ObjectId(),
+            ownerID: req.userData.userID,
+            name: name,
+            content: content,
+            type: type,
+            plan: plan,
+            expiry: expiryDate, // calculate expiry date from now
+          });
+
+          subdomain
+            .save()
+            .then((result) => {
+              console.log(result);
+              return res.status(201).json({
+                message: "Subdomain added!",
+                data: result,
+              });
+            })
+            .catch((err) => {
+              console.log(err);
+              return res.status(500).json({
+                message: "Internal Server Error",
+                error: err,
+              });
+            });
+        } else {
+          return res.status(500).json({
+            message: "Internal Server Error",
+            error: response.data.errors,
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
         return res.status(500).json({
           message: "Internal Server Error",
-          error: err,
+          error: error,
         });
       });
+
+    //set expiryDate to 30 days from now
+    // let expiryDate = new Date();
+    // expiryDate.setDate(expiryDate.getDate() + 30);
+    // const subdomain = new Subdomain({
+    //   _id: new mongoose.Types.ObjectId(),
+    //   ownerID: req.userData.userID,
+    //   name: req.body.name,
+    //   content: req.body.content,
+    //   type: req.body.type,
+    //   expiry: expiryDate, // calculate expiry date from now
+    // });
+
+    // subdomain
+    //   .save()
+    //   .then((result) => {
+    //     console.log(result);
+    //     return res.status(201).json({
+    //       message: "Subdomain added!",
+    //       data: result,
+    //     });
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //     return res.status(500).json({
+    //       message: "Internal Server Error",
+    //       error: err,
+    //     });
+    //   });
   }
 });
 
