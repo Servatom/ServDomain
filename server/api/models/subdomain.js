@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 
 const subdomainSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
+  cloudflareId: { type: String, required: true },
+  cloudflareZoneId: { type: String, required: true },
   ownerID: { type: String, required: true, ref: "User" },
   name: { type: String, required: true, unique: true },
   content: { type: String, required: true },

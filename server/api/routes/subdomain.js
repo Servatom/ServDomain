@@ -53,6 +53,8 @@ router.post("/", checkAuth, (req, res, next) => {
           expiryDate.setDate(expiryDate.getDate() + 30);
           const subdomain = new Subdomain({
             _id: new mongoose.Types.ObjectId(),
+            cloudflareId: response.data.result.id,
+            cloudflareZoneId: response.data.result.zone_id,
             ownerID: req.userData.userID,
             name: name,
             content: content,
@@ -91,35 +93,6 @@ router.post("/", checkAuth, (req, res, next) => {
           error: error,
         });
       });
-
-    //set expiryDate to 30 days from now
-    // let expiryDate = new Date();
-    // expiryDate.setDate(expiryDate.getDate() + 30);
-    // const subdomain = new Subdomain({
-    //   _id: new mongoose.Types.ObjectId(),
-    //   ownerID: req.userData.userID,
-    //   name: req.body.name,
-    //   content: req.body.content,
-    //   type: req.body.type,
-    //   expiry: expiryDate, // calculate expiry date from now
-    // });
-
-    // subdomain
-    //   .save()
-    //   .then((result) => {
-    //     console.log(result);
-    //     return res.status(201).json({
-    //       message: "Subdomain added!",
-    //       data: result,
-    //     });
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //     return res.status(500).json({
-    //       message: "Internal Server Error",
-    //       error: err,
-    //     });
-    //   });
   }
 });
 
@@ -159,7 +132,9 @@ router.get("/check", async (req, res, next) => {
       "beta",
       "test",
       "raghav",
+      "raghavtinker",
       "yashvardhan",
+      "yarora",
       "nikhil",
       "rupanshi",
       "rjain",
