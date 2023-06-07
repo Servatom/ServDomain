@@ -33,7 +33,7 @@ export const AuthContextProvider = (props) => {
       .then(() => {
         setUser(null);
         localStorage.removeItem("user");
-        customToast("Logged out successfully!");
+        customToast("Logged out successfully!", "logout");
       })
       .catch((error) => {
         alert(error);

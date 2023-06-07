@@ -71,7 +71,7 @@ const Login = () => {
           window.confirmationResult = confirmationResult;
           setOtpSent(true);
           setLoading(false);
-          customToast("OTP sent!");
+          customToast("OTP sent!", "otp");
           otpInputRef.current.focus();
         })
         .catch((error) => {
