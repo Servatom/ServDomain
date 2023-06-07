@@ -26,11 +26,21 @@ const RecordRow = ({ record, allowActions, key }) => {
             </button>
           ) : (
             <button
-              className={
-                "p-2 bg-indigo-600 hover:bg-indigo-500 bg-opacity-80 font-semibold text-gray-900 rounded-sm my-2"
-              }
+              className={"p-2 text-indigo-500 font-semibold rounded-sm my-2"}
             >
-              <span className="text-base">Edit</span>
+              <span className="text-base underline underline-offset-4">
+                Edit
+                <svg
+                  className="text-indigo-500 inline-block ml-1 h-4 w-4 fill-current"
+                  role="presentation"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="M4.488 1.85l.854-.353 6.15 6.15v.707l-6.15 6.15-.854-.354V1.85z"></path>
+                </svg>
+              </span>
             </button>
           )
         }
@@ -54,7 +64,9 @@ const RecordRow = ({ record, allowActions, key }) => {
       <td className="p-2">{record.name}</td>
       <td className="p-2">{record.content}</td>
       <td className="p-2">{record.plan}</td>
-      <td className={`p-2 ${dateColour}`}>{record.expiry}</td>
+      <td className={`p-2 ${dateColour}`}>
+        {new Date(record.expiry).toLocaleDateString()}
+      </td>
       {allowActions && recordActions()}
     </tr>
   );

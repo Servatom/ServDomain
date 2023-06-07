@@ -15,8 +15,9 @@ const Button = ({
       <button
         className={`w-full flex items-center justify-center px-5 py-3 text-base font-medium leading-6 text-white transition duration-150 ease-in-out border border-transparent rounded-md focus:outline-none focus:shadow-outline ${bg}`}
         onClick={() => {
-          !disabled && onClick && onClick();
+          onClick && onClick();
         }}
+        disabled={disabled}
         {...rest}
       >
         {children}

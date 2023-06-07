@@ -30,8 +30,7 @@ router.post("/", checkAuth, (req, res, next) => {
     !name ||
     !content ||
     !validTypes.includes(type) ||
-    !plans.includes(plan) ||
-    !req.headers.authorization
+    !plans.includes(plan)
   ) {
     return res.status(400).json({
       error: "Bad Request",

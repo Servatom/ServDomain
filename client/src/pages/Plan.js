@@ -45,10 +45,10 @@ const PlanPage = () => {
             ))}
           </div>
         </div>
-        <AddForm />
+        <AddForm plan={params.plan} />
         <div className="mt-20 w-full">
           <h1 className="text-xl font-medium text-center">Your Records</h1>
-          <RecordsTable />
+          <RecordsTable allowActions />
         </div>
       </div>
     );

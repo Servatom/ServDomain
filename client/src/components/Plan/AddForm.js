@@ -3,17 +3,23 @@ import Button from "../common/Button";
 import Input from "../common/Input";
 import axios from "../../axios";
 import { isIPV4Address } from "ip-address-validator";
+import customToast from "../common/CustomToast";
+import { useContext } from "react";
+import AuthContext from "../../store/auth-context";
+import { ImSpinner8 } from "react-icons/im";
+import { isValidHostname } from "../../utils";
 
-const AddForm = () => {
-  const [entryType, setEntryType] = useState("cname");
+const AddForm = ({ plan }) => {
+  const [entryType, setEntryType] = useState("CNAME");
   const [subdomain, setSubdomain] = useState("");
   const [content, setContent] = useState("");
   const [contentPlaceholder, setContentPlaceholder] =
     useState("www.example.com");
+  const [actionLoading, setActionLoading] = useState(false);
   const [maxContentLength, setMaxContentLength] = useState(70);
   const [optionColour, setOptionColour] = useState({
-    cname: "text-gray-300",
-    arecord: "text-gray-500",
+    CNAME: "text-gray-300",
+    A: "text-gray-500",
   });
 
   const errorVariants = {
@@ -29,7 +35,7 @@ const AddForm = () => {
     },
     content: {
       text:
-        entryType === "cname"
+        entryType === "CNAME"
           ? "Enter a valid Domain"
           : "Enter a valid IPv4 address",
       variant: "neutral",
@@ -40,11 +46,13 @@ const AddForm = () => {
     content: false,
   });
 
+  const authCtx = useContext(AuthContext);
+
   useEffect(() => {
-    if (entryType === "cname") {
+    if (entryType === "CNAME") {
       setOptionColour({
-        cname: "text-gray-300",
-        arecord: "text-gray-500",
+        CNAME: "text-gray-300",
+        A: "text-gray-500",
       });
       setContentPlaceholder("www.example.com");
       setMaxContentLength(70);
@@ -59,8 +67,8 @@ const AddForm = () => {
       });
     } else {
       setOptionColour({
-        cname: "text-gray-500",
-        arecord: "text-gray-300",
+        CNAME: "text-gray-500",
+        A: "text-gray-300",
       });
       setContentPlaceholder("69.42.0.69");
       setMaxContentLength(15);
@@ -176,7 +184,7 @@ const AddForm = () => {
     });
 
     if (content.length === 0) {
-      if (entryType === "arecord") {
+      if (entryType === "A") {
         setErrors((prevSate) => {
           return {
             ...prevSate,
@@ -186,12 +194,22 @@ const AddForm = () => {
             },
           };
         });
+      } else {
+        setErrors((prevSate) => {
+          return {
+            ...prevSate,
+            content: {
+              text: "Enter a valid hostname",
+              variant: "neutral",
+            },
+          };
+        });
       }
 
       return;
     }
 
-    if (entryType === "arecord") {
+    if (entryType === "A") {
       if (isIPV4Address(content)) {
         setErrors((prevSate) => {
           return {
@@ -213,8 +231,73 @@ const AddForm = () => {
           };
         });
       }
+    } else {
+      if (isValidHostname(content)) {
+        setErrors((prevSate) => {
+          return {
+            ...prevSate,
+            content: {
+              text: "Valid hostname",
+              variant: "success",
+            },
+          };
+        });
+      } else {
+        setErrors((prevSate) => {
+          return {
+            ...prevSate,
+            content: {
+              text: "Invalid hostname",
+              variant: "error",
+            },
+          };
+        });
+      }
     }
   }, [content]);
+
+  const addRecordHandler = () => {
+    if (
+      errors.name.variant === "success" &&
+      errors.content.variant === "success"
+    ) {
+      setActionLoading(true);
+
+      const data = {
+        name: subdomain,
+        content: content,
+        type: entryType,
+        plan: plan,
+      };
+      axios
+        .post("/subdomain", data, {
+          headers: {
+            Authorization: `Bearer ${authCtx.user.token}`,
+          },
+        })
+        .then((res) => {
+          console.log(res);
+          setActionLoading(false);
+          if (res.data.success) {
+            customToast("Record added successfully");
+            setSubdomain("");
+            setContent("");
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          } else {
+            customToast("Something went wrong");
+          }
+        })
+        .catch((err) => {
+          setActionLoading(false);
+          console.log(err);
+          customToast("Something went wrong");
+        });
+    } else {
+      customToast("Enter valid details");
+    }
+  };
 
   return (
     <div className="p-4 mx-auto flex flex-col items-center mt-12 max-w-[100vw-80px]">
@@ -222,16 +305,16 @@ const AddForm = () => {
         <div>
           <input
             type="radio"
-            id="cname"
+            id="CNAME"
             name="entry_type"
-            value={"cname"}
+            value={"CNAME"}
             className="appearance-none"
-            checked={entryType === "cname"}
+            checked={entryType === "CNAME"}
             onChange={(e) => setEntryType(e.target.value)}
           />
           <label
-            htmlFor="cname"
-            className={`font-semibold ${optionColour.cname} cursor-pointer`}
+            htmlFor="CNAME"
+            className={`font-semibold ${optionColour.CNAME} cursor-pointer`}
           >
             CNAME
           </label>
@@ -239,16 +322,16 @@ const AddForm = () => {
         <div>
           <input
             type="radio"
-            id="arecord"
+            id="A"
             name="entry_type"
-            value={"arecord"}
+            value={"A"}
             className="appearance-none"
-            checked={entryType === "arecord"}
+            checked={entryType === "A"}
             onChange={(e) => setEntryType(e.target.value)}
           />
           <label
-            htmlFor="arecord"
-            className={`font-semibold ${optionColour.arecord} cursor-pointer`}
+            htmlFor="A"
+            className={`font-semibold ${optionColour.A} cursor-pointer`}
           >
             A RECORD
           </label>
@@ -269,7 +352,7 @@ const AddForm = () => {
             maxLength={24}
           />
           <span
-            className={`errorText text-xs my-3 ${
+            className={`errorText text-xs my-3 w-max ${
               errorVariants[errors.name.variant]
             }`}
           >
@@ -298,7 +381,12 @@ const AddForm = () => {
           </span>
         </div>
 
-        <Button className={"mt-6"}>
+        <Button className={"mt-6"} onClick={addRecordHandler}>
+          {actionLoading && (
+            <div className="animate-spin mr-3">
+              <ImSpinner8 />
+            </div>
+          )}
           <span className="text-lg">Add</span>
         </Button>
       </div>
