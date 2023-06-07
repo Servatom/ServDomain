@@ -13,7 +13,7 @@ const LoginIcon = () => {
 
   const handleLogout = () => {
     setIsMenuOpen(false);
-    return <Redirect to="/logout" />;
+    history.push("/logout");
   };
 
   const MenuContent = () => {

@@ -9,7 +9,7 @@ const Logout = () => {
     if (!authCtx.isLoggedIn) return;
 
     authCtx.logout();
-  }, []);
+  }, [authCtx]);
 
   return <Redirect to="/" />;
 };

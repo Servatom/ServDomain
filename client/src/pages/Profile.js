@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Redirect, useHistory } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
-import RecordsTable from "../components/Plan/RecordsTable";
+import RecordsTable from "../components/Records/RecordsTable";
 import AuthContext from "../store/auth-context";
 import axios from "../axios";
 

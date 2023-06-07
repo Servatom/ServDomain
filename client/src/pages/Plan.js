@@ -2,7 +2,7 @@ import { useParams, Redirect } from "react-router-dom";
 import { features, plans } from "../constants/pricing";
 import Feature from "../components/Pricing/Feature";
 import AddForm from "../components/Plan/AddForm";
-import RecordsTable from "../components/Plan/RecordsTable";
+import RecordsTable from "../components/Records/RecordsTable";
 import { useContext } from "react";
 import AuthContext from "../store/auth-context";
 
