@@ -17,6 +17,7 @@ import Logout from "./pages/Logout";
 import AuthContext from "./store/auth-context";
 import axios from "./axios";
 import customToast from "./components/common/CustomToast";
+import Support from "./pages/Support";
 
 function App() {
   const authCtx = useContext(AuthContext);
@@ -72,6 +73,9 @@ function App() {
         </Route>
         <Route path={"/tnc"}>
           <TermsAndConditions />
+        </Route>
+        <Route path={"/support"}>
+          <Support />
         </Route>
         <Route path={"/:plan"} exact>
           <PlanPage />

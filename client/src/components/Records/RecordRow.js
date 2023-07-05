@@ -61,7 +61,15 @@ const RecordRow = ({ record, allowActions, key }) => {
   return (
     <tr key={key} className="text-sm font-medium text-gray-300 my-4">
       <td className="p-2">{record.type}</td>
-      <td className="p-2">{record.name}</td>
+      <td className="p-2">
+        <a
+          target="_blank"
+          href={"https://" + record.name + ".servatom.com"}
+          rel="noreferrer"
+        >
+          {record.name}
+        </a>
+      </td>
       <td className="p-2">{record.content}</td>
       <td className="p-2">{record.plan}</td>
       <td className={`p-2 ${dateColour}`}>

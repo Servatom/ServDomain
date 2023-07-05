@@ -278,7 +278,7 @@ const AddForm = ({ plan }) => {
         .then((res) => {
           console.log(res);
           setActionLoading(false);
-          if (res.data.success) {
+          if (res.status === 201) {
             customToast("Record added successfully");
             setSubdomain("");
             setContent("");
