@@ -4,10 +4,12 @@ const router = express.Router();
 const axios = require("../../axios");
 const { Record, ReservedRecord } = require("../models/record");
 const checkAuth = require("../middleware/check-auth");
+const { stripePaymentLinks } = require("../../config");
 
 router.get("/", checkAuth, (req, res, next) => {
   const ownerID = req.userData.userID;
   Record.find({ ownerID: ownerID })
+    .sort({ updated_at: -1 })
     .then((result) => {
       res.status(200).json({
         data: result,
@@ -40,8 +42,8 @@ router.post("/", checkAuth, (req, res, next) => {
     expiryDate.setDate(expiryDate.getDate() + 30);
     const record = new Record({
       _id: new mongoose.Types.ObjectId(),
-      cloudflareId: "",
-      cloudflareZoneId: "",
+      cloudflareId: "x",
+      cloudflareZoneId: "x",
       ownerID: req.userData.userID,
       name: name,
       content: content,
@@ -65,7 +67,7 @@ router.post("/", checkAuth, (req, res, next) => {
           .then((result) => {
             return res.status(201).json({
               message: "Subdomain Reserved!",
-              data: result,
+              payment_url: stripePaymentLinks[plan] + "?recordID=" + result._id,
             });
           })
           .catch((err) => {

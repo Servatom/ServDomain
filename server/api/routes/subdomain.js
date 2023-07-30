@@ -38,21 +38,21 @@ router.get("/check", async (req, res, next) => {
       "chuthiya",
     ];
 
-    let isReserved = false;
-    ReservedRecord.findOne({ name: subdomain })
+    const isReserved = await ReservedRecord.findOne({ name: subdomain })
       .then((result) => {
         if (result != null) {
-          isReserved = true;
-        } else isReserved = false;
-
-        return;
+          console.log("found in reserved");
+          return true;
+        } else {
+          return false;
+        }
       })
       .catch(() => {
-        isReserved = true;
-        return;
+        return true;
       });
+    console.log(isReserved);
 
-    if (restrictedSubdomains.includes(subdomain) || isReserved) {
+    if (isReserved || restrictedSubdomains.includes(subdomain)) {
       res.status(200).json({
         available: false,
       });
