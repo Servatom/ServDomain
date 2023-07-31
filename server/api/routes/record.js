@@ -163,20 +163,6 @@ router.delete("/:recordId", checkAuth, async (req, res, next) => {
       });
     }
   });
-
-  Record.deleteOne({ _id: recordID })
-    .then((result) => {
-      res.status(200).json({
-        message: "Subdomain deleted",
-        data: result,
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({
-        error: err,
-      });
-    });
 });
 
 module.exports = router;

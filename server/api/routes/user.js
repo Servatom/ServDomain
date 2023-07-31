@@ -36,6 +36,7 @@ router.post("/login", async (req, res, next) => {
             token: token,
             phoneNumber: phoneNumber,
             firebaseUID: firebaseUID,
+            email: result.email,
           },
         });
       } else {
@@ -78,6 +79,30 @@ router.post("/login", async (req, res, next) => {
       }
     }
   );
+});
+
+router.post("/update-email", checkAuth, async (req, res, next) => {
+  const email = req.body.email;
+  const userID = req.userData.userID;
+
+  const doc = await User.findOneAndUpdate(
+    { _id: userID },
+    { email: email },
+    { new: true }
+  )
+    .then((result) => {
+      res.status(200).json({
+        message: "Email updated",
+        email: email,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        message: "Internal Server Error",
+        error: err,
+      });
+    });
 });
 
 router.post("/verify", checkAuth, (req, res, next) => {
