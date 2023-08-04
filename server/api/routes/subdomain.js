@@ -22,6 +22,7 @@ router.get("/check", async (req, res, next) => {
       "staging",
       "beta",
       "test",
+      "prod",
       "raghav",
       "raghavtinker",
       "yashvardhan",

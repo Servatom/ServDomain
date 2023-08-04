@@ -1,4 +1,5 @@
 const express = require("express");
+const stripe = require("stripe")(process.env);
 const { default: mongoose } = require("mongoose");
 const router = express.Router();
 const axios = require("../../axios");
@@ -64,10 +65,10 @@ router.post("/", checkAuth, (req, res, next) => {
         });
         reservedRecord
           .save()
-          .then((result) => {
+          .then((x) => {
             return res.status(201).json({
               message: "Subdomain Reserved!",
-              payment_url: stripePaymentLinks[plan] + "?recordID=" + result._id,
+              recordId: result._id,
             });
           })
           .catch((err) => {
@@ -88,46 +89,51 @@ router.post("/", checkAuth, (req, res, next) => {
   }
 });
 
-router.post("/webhook", (req, res, next) => {
-  console.log(req.body);
-  res.status(200).json({
-    message: "Webhook received",
-  });
+router.post(
+  "/webhook",
+  express.json({ type: "application/json" }),
+  (request, response, next) => {
+    const { type, data } = request.body;
 
-  // if status = success
+    // if status = success
 
-  // get record from db
+    // get record from db
 
-  // if status = processing
-  //post to cloudflare
-  //   axios
-  //     .post("/dns_records", {
-  //       type: type,
-  //       name: name,
-  //       content: content,
-  //       ttl: 1,
-  //       proxied: false,
-  //     })
-  //     .then((response) => {
-  //       console.log(response.data);
-  //       if (response.data.success) {
-  //         //update status, expiry, cloudflareId and cloudflareZoneId in record
-  //         // remove record from reserved records
-  //       } else {
-  //         return res.status(500).json({
-  //           message: "Internal Server Error",
-  //           error: response.data.errors,
-  //         });
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //       return res.status(500).json({
-  //         message: "Internal Server Error",
-  //         error: error,
-  //       });
-  //     });
-});
+    // if status = processing
+    //post to cloudflare
+    //   axios
+    //     .post("/dns_records", {
+    //       type: type,
+    //       name: name,
+    //       content: content,
+    //       ttl: 1,
+    //       proxied: false,
+    //     })
+    //     .then((response) => {
+    //       console.log(response.data);
+    //       if (response.data.success) {
+    //         //update status, expiry, cloudflareId and cloudflareZoneId in record
+    //         // remove record from reserved records
+    //       } else {
+    //         return res.status(500).json({
+    //           message: "Internal Server Error",
+    //           error: response.data.errors,
+    //         });
+    //       }
+    //     })
+    //     .catch((error) => {
+    //       console.log(error);
+    //       return res.status(500).json({
+    //         message: "Internal Server Error",
+    //         error: error,
+    //       });
+    //     });
+
+    response.status(200).json({
+      received: true,
+    });
+  }
+);
 
 router.delete("/:recordId", checkAuth, async (req, res, next) => {
   const ownerID = req.userData.userID;

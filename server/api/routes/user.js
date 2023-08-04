@@ -81,19 +81,34 @@ router.post("/login", async (req, res, next) => {
   );
 });
 
-router.post("/update-email", checkAuth, async (req, res, next) => {
-  const email = req.body.email;
+router.get("/", checkAuth, (req, res, next) => {
   const userID = req.userData.userID;
-
-  const doc = await User.findOneAndUpdate(
-    { _id: userID },
-    { email: email },
-    { new: true }
-  )
+  User.findOne({ _id: userID })
     .then((result) => {
       res.status(200).json({
-        message: "Email updated",
-        email: email,
+        message: "User found",
+        data: result,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        message: "Internal Server Error",
+        error: err,
+      });
+    });
+});
+
+router.patch("/update", checkAuth, async (req, res, next) => {
+  const userID = req.userData.userID;
+
+  const doc = await User.findOneAndUpdate({ _id: userID }, req.body, {
+    new: true,
+  })
+    .then((result) => {
+      res.status(200).json({
+        message: "Data updated",
+        user: result,
       });
     })
     .catch((err) => {
