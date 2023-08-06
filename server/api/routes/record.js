@@ -92,42 +92,103 @@ router.post("/", checkAuth, (req, res, next) => {
 router.post(
   "/webhook",
   express.json({ type: "application/json" }),
-  (request, response, next) => {
+  async (request, response, next) => {
     const { type, data } = request.body;
-
     // if status = success
 
     // get record from db
 
-    // if status = processing
-    //post to cloudflare
-    //   axios
-    //     .post("/dns_records", {
-    //       type: type,
-    //       name: name,
-    //       content: content,
-    //       ttl: 1,
-    //       proxied: false,
-    //     })
-    //     .then((response) => {
-    //       console.log(response.data);
-    //       if (response.data.success) {
-    //         //update status, expiry, cloudflareId and cloudflareZoneId in record
-    //         // remove record from reserved records
-    //       } else {
-    //         return res.status(500).json({
-    //           message: "Internal Server Error",
-    //           error: response.data.errors,
-    //         });
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       console.log(error);
-    //       return res.status(500).json({
-    //         message: "Internal Server Error",
-    //         error: error,
-    //       });
-    //     });
+    if (type === "invoice.payment_succeeded") {
+      try {
+        const { recordId, firebaseId, plan } =
+          data.object.lines.data[0].metadata;
+        console.log(recordId, firebaseId, plan);
+        const reservedRecord = await ReservedRecord.findOne({
+          recordID: recordId,
+        });
+
+        console.log(reservedRecord);
+
+        if (reservedRecord) {
+          const record = await Record.findOne({ _id: recordId }).then(
+            (res) => res
+          );
+
+          const cf_resp = await axios
+            .post("/dns_records", {
+              type: record.type,
+              name: record.name,
+              content: record.content,
+              ttl: 1,
+              proxied: false,
+              comment: `ServDomain: Created by ${firebaseId} for ${plan} plan`,
+            })
+            .then((resp) => resp.data);
+
+          if (cf_resp.success) {
+            //update status, expiry, cloudflareId and cloudflareZoneId in record
+            // remove record from reserved records
+
+            console.log(new Date(data.object.lines.data[0].period.end * 1000));
+
+            record.status = "active";
+            record.expiry = new Date(
+              data.object.lines.data[0].period.end * 1000
+            );
+            record.cloudflareId = cf_resp.result.id;
+            record.cloudflareZoneId = cf_resp.result.zone_id;
+            record
+              .save()
+              .then((result) => {
+                ReservedRecord.deleteOne({ recordID: recordId })
+                  .then((result) => {
+                    console.log(result);
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                    throw err;
+                  });
+              })
+              .catch((err) => {
+                console.log(err);
+                throw err;
+              });
+          }
+        } else {
+          const record = await Record.findOneAndUpdate(
+            { _id: recordId },
+            {
+              status: "active",
+              expiry: new Date(data.object.lines.data[0].period.end * 1000),
+            }
+          );
+        }
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          message: "Internal Server Error",
+          error: err,
+        });
+      }
+    } else if (type === "customer.subscription.updated") {
+      try {
+        const { recordId, firebaseId, plan } = data.object.metadata;
+        if (data.object.status.includes("expired")) {
+          await ReservedRecord.deleteOne({ recordID: recordId });
+          await Record.findOneAndUpdate(
+            { _id: recordId },
+            { status: "expired" },
+            { new: true }
+          );
+        }
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          message: "Internal Server Error",
+          error: err,
+        });
+      }
+    }
 
     response.status(200).json({
       received: true,
