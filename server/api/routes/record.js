@@ -43,8 +43,6 @@ router.post("/", checkAuth, (req, res, next) => {
     expiryDate.setDate(expiryDate.getDate() + 30);
     const record = new Record({
       _id: new mongoose.Types.ObjectId(),
-      cloudflareId: "x",
-      cloudflareZoneId: "x",
       ownerID: req.userData.userID,
       name: name,
       content: content,
@@ -101,7 +99,7 @@ router.post(
     if (type === "invoice.payment_succeeded") {
       try {
         const { recordId, firebaseId, plan } =
-          data.object.lines.data[0].metadata;
+          data.object.subscription_details.metadata;
         console.log(recordId, firebaseId, plan);
         const reservedRecord = await ReservedRecord.findOne({
           recordID: recordId,
@@ -137,6 +135,7 @@ router.post(
             );
             record.cloudflareId = cf_resp.result.id;
             record.cloudflareZoneId = cf_resp.result.zone_id;
+            record.stripeSubscriptionId = data.object.subscription;
             record
               .save()
               .then((result) => {
@@ -195,6 +194,56 @@ router.post(
     });
   }
 );
+
+router.patch("/:recordId", checkAuth, async (req, res, next) => {
+  const ownerID = req.userData.userID;
+  const recordID = req.params.recordId;
+  const validTypes = ["A", "CNAME"];
+  const { content, type } = req.body;
+  console.log(content, type);
+  if (!content || !validTypes.includes(type)) {
+    return res.status(400).json({
+      error: "Bad Request",
+    });
+  } else {
+    try {
+      const record = await Record.findOne({ _id: recordID }).then((res) => res);
+      // update on cloudflare
+
+      const cf_resp = await axios
+        .patch(`/dns_records/${record.cloudflareId}`, {
+          content: content,
+          type: type,
+        })
+        .then((resp) => resp.data);
+
+      if (cf_resp.success) {
+        //then
+        record.content = content;
+        record.type = type;
+        record
+          .save()
+          .then((result) => {
+            return res.status(200).json({
+              message: "Record Updated",
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+            return res.status(500).json({
+              message: "Internal Server Error",
+              error: err,
+            });
+          });
+      }
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: JSON.stringify(err),
+      });
+    }
+  }
+});
 
 router.delete("/:recordId", checkAuth, async (req, res, next) => {
   const ownerID = req.userData.userID;
