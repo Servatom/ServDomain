@@ -249,17 +249,15 @@ router.delete("/:recordId", checkAuth, async (req, res, next) => {
   const ownerID = req.userData.userID;
   const recordID = req.params.recordId;
   // find record in db
-  let record = await Record.findOne({ _id: recordID, ownerID: ownerID }).then(
-    (result) => {
-      return result;
-    }
-  );
+  let record = await Record.findOne({ _id: recordID }).then((result) => {
+    return result;
+  });
 
   axios.delete(`/dns_records/${record.cloudflareId}`).then((response) => {
     console.log(response.data);
     if (response.data.success) {
       // remove record from reserved records
-      Record.deleteOne({ recordID: recordID, ownerID: ownerID })
+      Record.deleteOne({ _id: recordID })
         .then((result) => {
           res.status(200).json({
             message: "Subdomain deleted",

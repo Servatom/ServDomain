@@ -37,6 +37,14 @@ router.get("/check", async (req, res, next) => {
       "chutiya",
       "chutiye",
       "chuthiya",
+      "nikhilbksi",
+      "porn",
+      "sex",
+      "lund",
+      "loda",
+      "chut",
+      "gand",
+      "gandu",
     ];
 
     const isReserved = await ReservedRecord.findOne({ name: subdomain })
