@@ -118,7 +118,7 @@ router.post(
               name: record.name,
               content: record.content,
               ttl: 1,
-              proxied: false,
+              proxied: true,
               comment: `ServDomain: Created by ${firebaseId} for ${plan} plan`,
             })
             .then((resp) => resp.data);
@@ -263,14 +263,22 @@ router.patch("/:recordId", checkAuth, async (req, res, next) => {
   }
 });
 
-router.delete("/:recordId", checkAuth, async (req, res, next) => {
+router.delete("/:subscriptionId", checkAuth, async (req, res, next) => {
   const ownerID = req.userData.userID;
-  const recordID = req.params.recordId;
+  const subscriptionId = req.params.subscriptionId;
   try {
     // find record in db
-    let record = await Record.findOne({ _id: recordID }).then((result) => {
+    let record = await Record.findOne({
+      stripeSubscriptionId: subscriptionId,
+    }).then((result) => {
       return result;
     });
+
+    if (!record) {
+      return res.status(404).json({
+        message: "Record not found.",
+      });
+    }
 
     // delete record from cloudflare
     let cf_resp = await axios
@@ -291,14 +299,14 @@ router.delete("/:recordId", checkAuth, async (req, res, next) => {
         .catch((err) => {
           console.log(err);
           res.status(500).json({
-            error: err,
+            message: err,
           });
         });
     }
   } catch (err) {
     console.log(err);
     res.status(500).json({
-      error: err,
+      message: err,
     });
   }
 });
