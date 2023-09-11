@@ -161,10 +161,11 @@ router.post(
               expiry: new Date(data.object.lines.data[0].period.end * 1000),
             }
           );
+          console.log(record);
         }
       } catch (err) {
         console.log(err);
-        return res.status(500).json({
+        return response.status(500).json({
           message: "Internal Server Error",
           error: err,
         });
@@ -179,10 +180,27 @@ router.post(
             { status: "expired" },
             { new: true }
           );
+        } else if (data.object.status == "past_due") {
+          await Record.findOneAndUpdate(
+            { _id: recordId },
+            { status: "overdue" },
+            { new: true }
+          );
+        } else if (data.object.status == "canceled") {
+          let record = await Record.findOne({ _id: recordId });
+          const cf_resp = await axios
+            .delete(`/dns_records/${record.cloudflareId}`)
+            .then((resp) => resp.data);
+          if (cf_resp.success) {
+            record.status = "cancelled";
+            record.save().then((result) => result);
+          } else {
+            throw cf_resp.errors;
+          }
         }
       } catch (err) {
         console.log(err);
-        return res.status(500).json({
+        return response.status(500).json({
           message: "Internal Server Error",
           error: err,
         });
@@ -248,19 +266,25 @@ router.patch("/:recordId", checkAuth, async (req, res, next) => {
 router.delete("/:recordId", checkAuth, async (req, res, next) => {
   const ownerID = req.userData.userID;
   const recordID = req.params.recordId;
-  // find record in db
-  let record = await Record.findOne({ _id: recordID }).then((result) => {
-    return result;
-  });
+  try {
+    // find record in db
+    let record = await Record.findOne({ _id: recordID }).then((result) => {
+      return result;
+    });
 
-  axios.delete(`/dns_records/${record.cloudflareId}`).then((response) => {
-    console.log(response.data);
-    if (response.data.success) {
-      // remove record from reserved records
-      Record.deleteOne({ _id: recordID })
+    // delete record from cloudflare
+    let cf_resp = await axios
+      .delete(`/dns_records/${record.cloudflareId}`)
+      .then((resp) => resp.data);
+    if (!cf_resp.success) throw cf_resp.errors;
+    else {
+      // update record in db with status = cancelled,
+      record.status = "cancelled";
+      record
+        .save()
         .then((result) => {
           res.status(200).json({
-            message: "Subdomain deleted",
+            message: "Subscription cancelled successfully",
             data: result,
           });
         })
@@ -270,13 +294,13 @@ router.delete("/:recordId", checkAuth, async (req, res, next) => {
             error: err,
           });
         });
-    } else {
-      return res.status(500).json({
-        message: "Cloudflare Error",
-        error: response.data.errors,
-      });
     }
-  });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      error: err,
+    });
+  }
 });
 
 module.exports = router;
