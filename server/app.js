@@ -6,7 +6,6 @@ const subdomainRoutes = require("./api/routes/subdomain");
 const userRoutes = require("./api/routes/user");
 const recordRoutes = require("./api/routes/record");
 
-console.log(process.env.MONGODB_PASSWD);
 mongoose.connect(
   `mongodb+srv://yash22arora:${process.env.MONGODB_PASSWD}@servdomain.e6tn8tj.mongodb.net/?retryWrites=true&w=majority`
 );
@@ -30,9 +29,7 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res, next) => {
-  res.status(200).json({
-    message: "Up and running!",
-  });
+  res.send("Up and Running!");
 });
 app.use("/user", userRoutes);
 app.use("/record", recordRoutes);

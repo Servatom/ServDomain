@@ -311,4 +311,22 @@ router.delete("/:subscriptionId", checkAuth, async (req, res, next) => {
   }
 });
 
+router.delete("/incomplete/:recordId", checkAuth, async (req, res, next) => {
+  // delete record from records and reservedRecord collection
+  const recordId = req.params.recordId;
+  console.log(recordId);
+  try {
+    await Record.deleteOne({ _id: recordId });
+    await ReservedRecord.deleteOne({ recordID: recordId });
+    res.status(200).json({
+      message: "Record Deleted",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: err,
+    });
+  }
+});
+
 module.exports = router;
