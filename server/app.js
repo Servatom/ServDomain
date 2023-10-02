@@ -28,6 +28,9 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get("/", (req, res, next) => {
+  res.send("Up and Running!");
+});
 app.use("/user", userRoutes);
 app.use("/record", recordRoutes);
 app.use("/subdomain", subdomainRoutes);
