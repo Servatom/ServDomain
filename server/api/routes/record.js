@@ -25,8 +25,8 @@ router.get("/", checkAuth, (req, res, next) => {
 });
 
 router.post("/", checkAuth, (req, res, next) => {
-  const validTypes = ["A", "CNAME"];
-  const plans = ["personal", "student", "annual"];
+  const validTypes = ["A", "CNAME", "TXT"];
+  const plans = ["personal", "vercel", "annual"];
   const { name, content, type, plan } = req.body;
   console.log(name, content, type, plan);
   if (
@@ -118,7 +118,7 @@ router.post(
               name: record.name,
               content: record.content,
               ttl: 1,
-              proxied: true,
+              proxied: false,
               comment: `ServDomain: Created by ${firebaseId} for ${plan} plan`,
             })
             .then((resp) => resp.data);
