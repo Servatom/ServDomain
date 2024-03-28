@@ -4,6 +4,7 @@ const recordSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   cloudflareId: { type: String, required: true, default: "x" },
   cloudflareZoneId: { type: String, required: true, default: "x" },
+  domainID: { type: String, required: true, ref: "Domain" },
   stripeSubscriptionId: { type: String, required: true, default: "x" },
   ownerID: { type: String, required: true, ref: "User" },
   name: { type: String, required: true, unique: true },

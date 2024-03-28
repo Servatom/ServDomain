@@ -4,7 +4,7 @@ const router = express.Router();
 const axios = require("../../axios");
 const jwt = require("jsonwebtoken");
 
-const User = require("../models/user");
+const { User } = require("../models/user");
 const checkAuth = require("../middleware/check-auth");
 
 router.post("/login", async (req, res, next) => {

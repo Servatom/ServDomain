@@ -14,4 +14,6 @@ const userScheme = mongoose.Schema({
   stripeCustomerId: { type: String, required: false },
 });
 
-module.exports = mongoose.model("User", userScheme);
+const User = mongoose.model("User", userScheme);
+
+module.exports = { User };
