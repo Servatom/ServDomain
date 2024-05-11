@@ -6,6 +6,29 @@ const checkAuth = require("../middleware/check-auth");
 const { Domain } = require("../models/domain");
 const { encrypt } = require("../../utils/utils");
 
+router.get("/default", async (req, res, next) => {
+  try {
+    const domain = await Domain.findOne({
+      domainName: process.env.DEFAULT_DOMAIN_NAME,
+    }).then((res) => res);
+
+    if (!domain) {
+      return res.status(404).json({
+        error: "Default domain not found",
+      });
+    } else {
+      return res.status(200).json({
+        domainName: domain.domainName,
+        domainID: domain._id,
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+});
+
 router.post("/", checkAuth, async (req, res, next) => {
   const userID = req.userData.userID;
   const { cfAuthToken, cfZoneID, restrictedSubdomains = [] } = req.body;
@@ -24,11 +47,7 @@ router.post("/", checkAuth, async (req, res, next) => {
       const domain = new Domain({
         _id: new mongoose.Types.ObjectId(),
         ownerID: userID,
-        cfAuthToken: encrypt(
-          cfAuthToken,
-          process.env.CIPHER_KEY,
-          process.env.CIPHER_IV
-        ),
+        cfAuthToken: encrypt(cfAuthToken),
         cfZoneID: cfZoneID,
         domainName: domain_name,
         restrictedSubdomains: restrictedSubdomains,

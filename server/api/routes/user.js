@@ -1,7 +1,6 @@
 const express = require("express");
 const { default: mongoose } = require("mongoose");
 const router = express.Router();
-const axios = require("../../axios");
 const jwt = require("jsonwebtoken");
 
 const { User } = require("../models/user");

@@ -2,9 +2,11 @@ const express = require("express");
 const stripe = require("stripe")(process.env);
 const { default: mongoose } = require("mongoose");
 const router = express.Router();
-const axios = require("../../axios");
+const { axiosInstance } = require("../../axios");
 const { Record, ReservedRecord } = require("../models/record");
+const { Domain } = require("../models/domain");
 const checkAuth = require("../middleware/check-auth");
+const { decrypt } = require("../../utils/utils");
 const { stripePaymentLinks } = require("../../config");
 
 router.get("/", checkAuth, (req, res, next) => {
@@ -27,19 +29,30 @@ router.get("/", checkAuth, (req, res, next) => {
 router.post("/", checkAuth, (req, res, next) => {
   const validTypes = ["A", "CNAME", "TXT"];
   const plans = ["personal", "vercel", "annual"];
-  const { name, content, type, plan } = req.body;
-  console.log(name, content, type, plan);
+  const { name, content, type, plan, domainId } = req.body;
+  console.log(name, content, type, plan, domainId);
   if (
     !name ||
     !content ||
     !validTypes.includes(type) ||
-    !plans.includes(plan)
+    !plans.includes(plan) ||
+    !domainId
   ) {
     return res.status(400).json({
       error: "Bad Request",
     });
   } else {
     let expiryDate = new Date();
+
+    // find domain with domainId in db
+    const domain = Domain.findOne({ _id: domainId }).then((res) => res);
+    console.log(domain);
+    if (!domain) {
+      return res.status(404).json({
+        message: "Domain not found",
+      });
+    }
+
     expiryDate.setDate(expiryDate.getDate() + 30);
     const record = new Record({
       _id: new mongoose.Types.ObjectId(),
@@ -48,6 +61,7 @@ router.post("/", checkAuth, (req, res, next) => {
       content: content,
       type: type,
       plan: plan,
+      domainID: domainId,
       expiry: expiryDate, // calculate expiry date from now
     });
 
@@ -59,7 +73,7 @@ router.post("/", checkAuth, (req, res, next) => {
           _id: new mongoose.Types.ObjectId(),
           recordID: result._id,
           ownerID: req.userData.userID,
-          name: name,
+          name: name + domain.domainName,
         });
         reservedRecord
           .save()
@@ -112,15 +126,27 @@ router.post(
             (res) => res
           );
 
-          const cf_resp = await axios
-            .post("/dns_records", {
-              type: record.type,
-              name: record.name,
-              content: record.content,
-              ttl: 1,
-              proxied: false,
-              comment: `ServDomain: Created by ${firebaseId} for ${plan} plan`,
-            })
+          const domain = await Domain.findOne({ _id: record.domainID }).then(
+            (res) => res
+          );
+
+          const cf_resp = await axiosInstance //TODO: dynamically add zone id and auth token for each domain
+            .post(
+              `/${domain.cfZoneID}/dns_records`,
+              {
+                type: record.type,
+                name: record.name,
+                content: record.content,
+                ttl: 1,
+                proxied: false,
+                comment: `ServDomain: Created by ${firebaseId} for ${plan} plan`,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${decrypt(domain.cfAuthToken)}`,
+                },
+              }
+            )
             .then((resp) => resp.data);
 
           if (cf_resp.success) {
@@ -188,8 +214,15 @@ router.post(
           );
         } else if (data.object.status == "canceled") {
           let record = await Record.findOne({ _id: recordId });
-          const cf_resp = await axios
-            .delete(`/dns_records/${record.cloudflareId}`)
+          const domain = await Domain.findOne({ _id: record.domainID }).then(
+            (res) => res
+          );
+          const cf_resp = await axiosInstance
+            .delete(`/${domain.cfZoneID}/dns_records/${record.cloudflareId}`, {
+              headers: {
+                Authorization: `Bearer ${decrypt(domain.cfAuthToken)}`,
+              },
+            })
             .then((resp) => resp.data);
           if (cf_resp.success) {
             record.status = "cancelled";
@@ -226,13 +259,25 @@ router.patch("/:recordId", checkAuth, async (req, res, next) => {
   } else {
     try {
       const record = await Record.findOne({ _id: recordID }).then((res) => res);
+      const domain = await Domain.findOne({ _id: record.domainID }).then(
+        (res) => res
+      );
+
       // update on cloudflare
 
-      const cf_resp = await axios
-        .patch(`/dns_records/${record.cloudflareId}`, {
-          content: content,
-          type: type,
-        })
+      const cf_resp = await axiosInstance
+        .patch(
+          `/${domain.cfZoneID}/dns_records/${record.cloudflareId}`,
+          {
+            content: content,
+            type: type,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${decrypt(domain.cfAuthToken)}`,
+            },
+          }
+        )
         .then((resp) => resp.data);
 
       if (cf_resp.success) {
@@ -273,6 +318,9 @@ router.delete("/:subscriptionId", checkAuth, async (req, res, next) => {
     }).then((result) => {
       return result;
     });
+    const domain = await Domain.findOne({ _id: record.domainID }).then(
+      (res) => res
+    );
 
     if (!record) {
       return res.status(404).json({
@@ -281,8 +329,12 @@ router.delete("/:subscriptionId", checkAuth, async (req, res, next) => {
     }
 
     // delete record from cloudflare
-    let cf_resp = await axios
-      .delete(`/dns_records/${record.cloudflareId}`)
+    let cf_resp = await axiosInstance
+      .delete(`/${domain.cfZoneID}/dns_records/${record.cloudflareId}`, {
+        headers: {
+          Authorization: `Bearer ${decrypt(domain.cfAuthToken)}`,
+        },
+      })
       .then((resp) => resp.data);
     if (!cf_resp.success) throw cf_resp.errors;
     else {
