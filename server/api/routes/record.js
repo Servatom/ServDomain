@@ -26,7 +26,7 @@ router.get("/", checkAuth, (req, res, next) => {
     });
 });
 
-router.post("/", checkAuth, (req, res, next) => {
+router.post("/", checkAuth, async (req, res, next) => {
   const validTypes = ["A", "CNAME", "TXT"];
   const plans = ["personal", "vercel", "annual"];
   const { name, content, type, plan, domainId } = req.body;
@@ -42,62 +42,63 @@ router.post("/", checkAuth, (req, res, next) => {
       error: "Bad Request",
     });
   } else {
-    let expiryDate = new Date();
+    try {
+      let expiryDate = new Date();
+      // find domain with domainId in db
+      const domain = await Domain.findOne({ _id: domainId }).then((res) => res);
 
-    // find domain with domainId in db
-    const domain = Domain.findOne({ _id: domainId }).then((res) => res);
-    console.log(domain);
-    if (!domain) {
-      return res.status(404).json({
-        message: "Domain not found",
+      console.log(domain);
+
+      if (!domain) {
+        return res.status(404).json({
+          message: "Domain not found",
+        });
+      }
+
+      expiryDate.setDate(expiryDate.getDate() + 30);
+      const record = new Record({
+        _id: new mongoose.Types.ObjectId(),
+        ownerID: req.userData.userID,
+        name: name,
+        content: content,
+        type: type,
+        plan: plan,
+        domainID: domainId,
+        expiry: expiryDate, // calculate expiry date from now
+      });
+
+      record
+        .save()
+        .then((result) => {
+          console.log(result);
+          const reservedRecord = new ReservedRecord({
+            _id: new mongoose.Types.ObjectId(),
+            recordID: result._id,
+            ownerID: req.userData.userID,
+            name: name + "." + domain.domainName,
+          });
+          reservedRecord
+            .save()
+            .then((x) => {
+              return res.status(201).json({
+                message: "Subdomain Reserved!",
+                recordId: result._id,
+              });
+            })
+            .catch((err) => {
+              throw err;
+            });
+        })
+        .catch((err) => {
+          throw err;
+        });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Internal Server Error",
+        error: err,
       });
     }
-
-    expiryDate.setDate(expiryDate.getDate() + 30);
-    const record = new Record({
-      _id: new mongoose.Types.ObjectId(),
-      ownerID: req.userData.userID,
-      name: name,
-      content: content,
-      type: type,
-      plan: plan,
-      domainID: domainId,
-      expiry: expiryDate, // calculate expiry date from now
-    });
-
-    record
-      .save()
-      .then((result) => {
-        console.log(result);
-        const reservedRecord = new ReservedRecord({
-          _id: new mongoose.Types.ObjectId(),
-          recordID: result._id,
-          ownerID: req.userData.userID,
-          name: name + domain.domainName,
-        });
-        reservedRecord
-          .save()
-          .then((x) => {
-            return res.status(201).json({
-              message: "Subdomain Reserved!",
-              recordId: result._id,
-            });
-          })
-          .catch((err) => {
-            console.log(err);
-            return res.status(500).json({
-              message: "Internal Server Error",
-              error: err,
-            });
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-        return res.status(500).json({
-          message: "Internal Server Error",
-          error: err,
-        });
-      });
   }
 });
 

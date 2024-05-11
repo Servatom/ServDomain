@@ -61,7 +61,9 @@ router.get("/check", async (req, res, next) => {
       ...domain.restrictedSubdomains,
     ];
 
-    const isReserved = await ReservedRecord.findOne({ name: subdomain })
+    const isReserved = await ReservedRecord.findOne({
+      name: subdomain + "." + domain.domainName,
+    })
       .then((result) => {
         if (result != null) {
           console.log("found in reserved");
