@@ -86,7 +86,7 @@ router.get("/check", async (req, res, next) => {
         domain.cfZoneID,
         domain.cfAuthToken
       );
-      if (subdomainList.includes(subdomain + domain.domainName)) {
+      if (subdomainList.includes(subdomain + "." + domain.domainName)) {
         res.status(200).json({
           isAvailable: false,
         });
