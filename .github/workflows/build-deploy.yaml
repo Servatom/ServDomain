@@ -54,7 +54,7 @@ jobs:
             set -e
 
             # Pull the latest Docker image
-            docker login -u $DOCKER_USERNAME -p ${{ secrets.DOCKER_PASSWORD }}
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u $DOCKER_USERNAME --password-stdin
             docker pull $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest
 
             # Navigate to your project directory
