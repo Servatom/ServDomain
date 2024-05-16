@@ -43,6 +43,31 @@ jobs:
       - name: Install SSH client
         run: sudo apt-get install -y openssh-client
 
+      - name: Create deployment script
+        run: |
+          cat << 'EOF' > deploy.sh
+          #!/bin/bash
+          set -e
+
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker pull ${{ secrets.DOCKER_USERNAME }}/${{secrets.DOCKER_IMAGE_NAME}}:latest
+
+          # Navigate to your project directory
+          cd /home/ubuntu/projects/servdomain
+
+          sed -i 's|image: .*$|image: ${{ secrets.DOCKER_USERNAME }}/${{secrets.DOCKER_IMAGE_NAME}}|' docker-compose.yml
+
+          # Restart the Docker containers using Docker Compose
+          docker-compose down
+          docker-compose up -d
+
+          # Clean up
+          docker system prune -af
+          EOF
+
+      - name: Make deployment script executable
+        run: chmod +x deploy.sh
+
       - name: Deploy to EC2
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -50,26 +75,8 @@ jobs:
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2-key.pem
           chmod 600 ec2-key.pem
-          ssh -o StrictHostKeyChecking=no -i ec2-key.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
-            set -e
-
-            # Pull the latest Docker image
-            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u $DOCKER_USERNAME --password-stdin
-            docker pull $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest
-
-            # Navigate to your project directory
-            cd /home/ubuntu/projects/servdomain
-
-            # Update docker-compose.yml file with the latest image
-            sed -i 's|image: .*$|image: '"$DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest"'|' docker-compose.yml
-
-            # Restart the Docker containers using Docker Compose
-            docker-compose down
-            docker-compose up -d
-
-            # Clean up
-            docker system prune -af
-          EOF
+          scp -i ec2-key.pem -o StrictHostKeyChecking=no deploy.sh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USERNAME }}/deploy.sh
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} /home/${{ secrets.SSH_USERNAME }}/deploy.sh
 
       - name: Clean up
-        run: rm ec2-key.pem
+        run: rm -f ec2-key.pem deploy.sh
