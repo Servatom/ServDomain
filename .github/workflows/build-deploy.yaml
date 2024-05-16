@@ -1,0 +1,73 @@
+name: Docker Build Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_IMAGE_NAME: ${{secrets.DOCKER_IMAGE_NAME}}
+  SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+  SSH_HOST: ${{ secrets.SSH_HOST }}
+
+jobs:
+  create-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build -f server/Dockerfile -t ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_IMAGE_NAME}}:latest .
+
+      - name: Push Docker image
+        run: docker push ${{secrets.DOCKER_USERNAME}}/${{secrets.DOCKER_IMAGE_NAME}}:latest
+
+  deployment:
+    needs: create-docker-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SSH client
+          run: sudo apt-get install -y openssh-client
+      
+      - name: Deploy to EC2
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_IMAGE_NAME: ${{secrets.DOCKER_IMAGE_NAME}}
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2-key.pem
+          chmod 600 ec2-key.pem
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            set -e
+
+            # Pull the latest Docker image
+            docker login -u $DOCKER_USERNAME -p ${{ secrets.DOCKER_PASSWORD }}
+            docker pull $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest
+
+            # Navigate to your project directory
+            cd /home/ubuntu/projects/servdomain
+
+            # Update docker-compose.yml file with the latest image
+            sed -i 's|image: .*$|image: '"$DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest"'|' docker-compose.yml
+
+            # Restart the Docker containers using Docker Compose
+            docker-compose down
+            docker-compose up -d
+
+            # Clean up
+            docker system prune -af
+          EOF
+
+      - name: Clean up
+        run: rm ec2-key.pem
