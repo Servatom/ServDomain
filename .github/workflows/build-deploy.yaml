@@ -39,8 +39,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install SSH client
-          run: sudo apt-get install -y openssh-client
-      
+        run: sudo apt-get install -y openssh-client
+
       - name: Deploy to EC2
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
