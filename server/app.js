@@ -9,7 +9,7 @@ const domainRoutes = require("./api/routes/domain");
 
 mongoose
   .connect(
-    `mongodb+srv://${MONGODB_USERNAME}:${process.env.MONGODB_PASSWD}@${process.env.MONGODB_CLUSTER}.mongodb.net/?retryWrites=true&w=majority`
+    `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWD}@${process.env.MONGODB_CLUSTER}.mongodb.net/?retryWrites=true&w=majority`
   )
   .then(() => {
     console.log("Connected to database 🚀");
