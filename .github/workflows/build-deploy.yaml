@@ -87,3 +87,60 @@ jobs:
 
       - name: Clean up
         run: rm -f ec2-key.pem deploy.sh
+
+      - name: Wait for 10 seconds
+        run: sleep 10
+
+  health-check:
+    needs: deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health check
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2-key.pem
+          chmod 600 ec2-key.pem
+          ssh -o StrictHostKeyChecking=no -i ec2-key.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "curl -f http://localhost:5000/health || exit 1"
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const message = "Deployment failed. Health check did not return 200.";
+
+            // Check if the event has an associated issue or pull request
+            if (context.payload.pull_request) {
+
+              // Add a comment to the pull request
+              github.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: message
+              });
+
+            } else if (context.payload.issue) {
+
+              // Add a comment to the issue
+              github.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                body: message
+              });
+
+            } else {
+
+              // Create a new issue if no associated pull request or issue is found
+              github.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: "Deployment failed",
+                body: message
+              });
+
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

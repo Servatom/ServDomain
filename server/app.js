@@ -33,7 +33,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res, next) => {
+app.get("/health", (req, res, next) => {
   res.send("Up and Running!");
 });
 app.use("/user", userRoutes);
