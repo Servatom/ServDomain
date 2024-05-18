@@ -36,6 +36,7 @@ router.post("/login", async (req, res, next) => {
             phoneNumber: phoneNumber,
             firebaseUID: firebaseUID,
             email: result.email,
+            onWaitlist: result.onWaitlist,
           },
         });
       } else {
@@ -65,6 +66,8 @@ router.post("/login", async (req, res, next) => {
                 token: token,
                 phoneNumber: phoneNumber,
                 firebaseUID: firebaseUID,
+                email: result.email,
+                onWaitlist: result.onWaitlist,
               },
             });
           })
@@ -108,6 +111,30 @@ router.patch("/update", checkAuth, async (req, res, next) => {
       res.status(200).json({
         message: "Data updated",
         user: result,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        message: "Internal Server Error",
+        error: err,
+      });
+    });
+});
+
+router.post("/waitlist", checkAuth, async (req, res, next) => {
+  const userID = req.userData.userID;
+  const onWaitlist = req.body.onWaitlist;
+
+  const doc = await User.findOneAndUpdate(
+    { _id: userID },
+    { onWaitlist: onWaitlist },
+    { new: true }
+  )
+    .then((result) => {
+      res.status(200).json({
+        message: "User updated",
+        data: result,
       });
     })
     .catch((err) => {

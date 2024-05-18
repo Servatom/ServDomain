@@ -12,6 +12,7 @@ const userScheme = mongoose.Schema({
   firebaseUID: { type: String, required: true, unique: true },
   email: { type: String, required: false },
   stripeCustomerId: { type: String, required: false },
+  onWaitlist: { type: Boolean, required: true, default: false },
 });
 
 const User = mongoose.model("User", userScheme);
