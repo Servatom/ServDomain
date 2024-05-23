@@ -6,6 +6,7 @@ const planSchema = mongoose.Schema({
   domainID: { type: String, required: true, ref: "Domain" },
   planType: { type: String, required: true },
   planLabel: { type: String, required: true },
+  hasTxtRecord: { type: Boolean, required: true, default: false },
   expiry: { type: Date, required: true },
   stripeSubscriptionId: { type: String, required: true, default: "x" },
   records: { type: Array, default: [] },
