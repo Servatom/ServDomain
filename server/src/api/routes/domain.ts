@@ -39,7 +39,7 @@ router.post(
   "/",
   checkAuth,
   async (req: DomainPostRequest, res: Response, next: NextFunction) => {
-    const userID = req.userData.userID;
+    const userID = req.userData!.userID;
     const { cfAuthToken, cfZoneID, restrictedSubdomains = [] } = req.body;
     try {
       let cf_response = await axios
@@ -77,7 +77,7 @@ router.post(
           error: "Invalid Cloudflare Zone ID or Auth Token",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       if (error.response.status === 403) {
         return res.status(500).json({
           error: "Invalid Cloudflare Auth Token",

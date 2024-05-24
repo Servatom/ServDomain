@@ -26,7 +26,7 @@ router.post(
               phoneNumber: phoneNumber,
               firebaseUID: firebaseUID,
             },
-            process.env.JWT_KEY,
+            process.env.JWT_KEY!,
             {
               expiresIn: "7d",
             }
@@ -57,7 +57,7 @@ router.post(
                   phoneNumber: phoneNumber,
                   firebaseUID: firebaseUID,
                 },
-                process.env.JWT_KEY,
+                process.env.JWT_KEY!,
                 {
                   expiresIn: "7d",
                 }
@@ -91,7 +91,7 @@ router.get(
   "/",
   checkAuth,
   (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    const userID = req.userData.userID;
+    const userID = req.userData!.userID;
     User.findOne({ _id: userID })
       .then((result) => {
         res.status(200).json({
@@ -113,7 +113,7 @@ router.patch(
   "/update",
   checkAuth,
   async (req: UpdateUserRequest, res: Response, next: NextFunction) => {
-    const userID = req.userData.userID;
+    const userID = req.userData!.userID;
 
     const doc = await User.findOneAndUpdate({ _id: userID }, req.body, {
       new: true,
@@ -138,7 +138,7 @@ router.post(
   "/waitlist",
   checkAuth,
   async (req: UpdateUserRequest, res: Response, next: NextFunction) => {
-    const userID = req.userData.userID;
+    const userID = req.userData!.userID;
     const onWaitlist = req.body.onWaitlist;
 
     const doc = await User.findOneAndUpdate(
@@ -162,10 +162,14 @@ router.post(
   }
 );
 
-router.post("/verify", checkAuth, (req, res, next) => {
-  res.status(200).json({
-    message: "User verified",
-  });
-});
+router.post(
+  "/verify",
+  checkAuth,
+  (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    res.status(200).json({
+      message: "User verified",
+    });
+  }
+);
 
 export default router;

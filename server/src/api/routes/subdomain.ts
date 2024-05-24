@@ -23,7 +23,7 @@ router.get(
       });
 
       if (!domain) {
-        res.status(400).json({
+        return res.status(400).json({
           error: "Invalid domain",
         });
       }
@@ -104,7 +104,7 @@ router.get(
 );
 
 const getSubdomainList = async (cfZoneID: string, cfAuthToken: string) => {
-  const subdomainList = [];
+  const subdomainList: string[] = [];
   await axiosInstance
     .get(`/${cfZoneID}/dns_records`, {
       headers: {
@@ -112,7 +112,7 @@ const getSubdomainList = async (cfZoneID: string, cfAuthToken: string) => {
       },
     })
     .then((response) => {
-      response.data.result.forEach((record) => {
+      response.data.result.forEach((record: { name: string }) => {
         subdomainList.push(record.name);
       });
     })

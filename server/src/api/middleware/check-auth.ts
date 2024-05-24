@@ -8,8 +8,13 @@ const checkAuth = (
   next: NextFunction
 ) => {
   try {
-    const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_KEY);
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({
+        message: "Auth failed",
+      });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_KEY!);
     req.userData = decoded as AuthenticatedRequest["userData"];
     next();
   } catch (error) {

@@ -15,6 +15,8 @@ RUN npm ci --omit=dev
 # Bundle app source
 COPY . .
 
+# Because we have the postinstall script in the package.json file, we dont need to run the tsc command separately. npm install will take care of it.
+
 # Expose the port the app runs on
 EXPOSE 5000
 

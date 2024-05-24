@@ -1,7 +1,7 @@
 import { Request } from "express";
 
 export interface AuthenticatedRequest extends Request {
-  userData: {
+  userData?: {
     userID: string;
     phoneNumber: string;
     firebaseUID: string;

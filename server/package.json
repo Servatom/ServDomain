@@ -21,7 +21,8 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.3",
     "morgan": "^1.10.0",
-    "stripe": "^12.16.0"
+    "stripe": "^12.16.0",
+    "typescript": "^5.4.5"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
