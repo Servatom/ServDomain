@@ -1,12 +1,12 @@
 require("dotenv").config();
 
-const crypto = require("crypto");
+import * as crypto from "crypto";
 
 // Encryption and decryption key
 const ENCRYPTION_KEY = process.env.CIPHER_KEY; // Must be 256 bits (32 characters)
 const IV_LENGTH = 16; // For AES, this is always 16
 
-function encrypt(text) {
+function encrypt(text: string) {
   let iv = crypto.randomBytes(IV_LENGTH);
   let cipher = crypto.createCipheriv(
     "aes-256-cbc",
@@ -20,7 +20,7 @@ function encrypt(text) {
   return iv.toString("hex") + ":" + encrypted.toString("hex");
 }
 
-function decrypt(text) {
+function decrypt(text: string) {
   let textParts = text.split(":");
   let iv = Buffer.from(textParts.shift(), "hex");
   let encryptedText = Buffer.from(textParts.join(":"), "hex");
@@ -36,7 +36,4 @@ function decrypt(text) {
   return decrypted.toString();
 }
 
-module.exports = {
-  encrypt,
-  decrypt,
-};
+export { encrypt, decrypt };

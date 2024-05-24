@@ -1,6 +1,14 @@
-const mongoose = require("mongoose");
+import mongoose, { Document, Schema } from "mongoose";
 
-const userScheme = mongoose.Schema({
+interface IUser extends Document {
+  phoneNumber: string;
+  firebaseUID: string;
+  email: string;
+  stripeCustomerId: string;
+  onWaitlist: boolean;
+}
+
+const userScheme: Schema<IUser> = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   phoneNumber: {
     type: String,
@@ -15,6 +23,6 @@ const userScheme = mongoose.Schema({
   onWaitlist: { type: Boolean, required: true, default: false },
 });
 
-const User = mongoose.model("User", userScheme);
+const User = mongoose.model<IUser>("User", userScheme);
 
-module.exports = { User };
+export { User, IUser };
