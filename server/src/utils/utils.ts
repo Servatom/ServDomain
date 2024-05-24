@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-import * as crypto from "crypto";
+import crypto from "crypto";
 
 // Encryption and decryption key
 const ENCRYPTION_KEY = process.env.CIPHER_KEY!; // Must be 256 bits (32 characters)
