@@ -11,8 +11,6 @@ const recordSchema = mongoose.Schema({
   name: { type: String, required: true, unique: true },
   content: { type: String, required: true },
   type: { type: String, required: true },
-  plan: { type: String, required: true }, // TODO: remove this
-  expiry: { type: Date, required: true }, // TODO: remove this
   status: { type: String, default: "processing" },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },

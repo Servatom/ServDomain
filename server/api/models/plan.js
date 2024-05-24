@@ -9,7 +9,6 @@ const planSchema = mongoose.Schema({
   hasTxtRecord: { type: Boolean, required: true, default: false },
   expiry: { type: Date, required: true },
   stripeSubscriptionId: { type: String, required: true, default: "x" },
-  records: { type: Array, default: [] },
   created_at: { type: Date, default: Date.now },
 });
 

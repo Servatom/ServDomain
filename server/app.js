@@ -6,6 +6,7 @@ const subdomainRoutes = require("./api/routes/subdomain");
 const userRoutes = require("./api/routes/user");
 const recordRoutes = require("./api/routes/record");
 const domainRoutes = require("./api/routes/domain");
+const planRoutes = require("./api/routes/plan");
 
 mongoose
   .connect(
@@ -40,6 +41,7 @@ app.use("/user", userRoutes);
 app.use("/record", recordRoutes);
 app.use("/domain", domainRoutes);
 app.use("/subdomain", subdomainRoutes);
+app.use("/plan", planRoutes);
 
 // Error handling
 app.use((req, res, next) => {
