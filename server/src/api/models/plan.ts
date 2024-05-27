@@ -9,7 +9,7 @@ interface IPlan extends Document {
   hasTxtRecord: boolean;
   status: TPlanStatus;
   expiry: Date;
-  stripeSubscriptionId: string;
+  razorpaySubscriptionID: string;
   created_at: Date;
 }
 
@@ -22,7 +22,7 @@ const planSchema: Schema<IPlan> = new mongoose.Schema({
   status: { type: String, required: true, default: "processing" },
   hasTxtRecord: { type: Boolean, required: true, default: false },
   expiry: { type: Date, required: true },
-  stripeSubscriptionId: { type: String, required: true, default: "x" },
+  razorpaySubscriptionID: { type: String, required: true, default: "x" },
   created_at: { type: Date, default: Date.now },
 });
 

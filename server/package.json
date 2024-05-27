@@ -19,6 +19,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.3",
     "morgan": "^1.10.0",
+    "razorpay": "^2.9.4",
     "stripe": "^12.16.0",
     "typescript": "^5.4.5"
   },

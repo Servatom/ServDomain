@@ -8,22 +8,32 @@
 // const checkAuth = require("../middleware/check-auth");
 // const { decrypt } = require("../../utils/utils");
 
-// router.get("/", checkAuth, (req, res, next) => {
-//   const ownerID = req.userData.userID;
-//   Record.find({ ownerID: ownerID })
-//     .sort({ updated_at: -1 })
-//     .then((result) => {
-//       res.status(200).json({
-//         data: result,
-//       });
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       res.status(500).json({
-//         error: err,
-//       });
-//     });
-// });
+import { NextFunction, Response, Router } from "express";
+import checkAuth from "../middleware/check-auth";
+import { AuthenticatedRequest } from "../../utils/types";
+import { Record } from "../models/record";
+const router = Router();
+
+router.get(
+  "/",
+  checkAuth,
+  (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    const ownerID = req.userData?.userID;
+    Record.find({ ownerID: ownerID })
+      .sort({ updated_at: -1 })
+      .then((result) => {
+        res.status(200).json({
+          data: result,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          error: err,
+        });
+      });
+  }
+);
 
 // router.post("/", checkAuth, async (req, res, next) => {
 //   const validTypes = ["A", "CNAME", "TXT"];
@@ -382,9 +392,5 @@
 // });
 
 // module.exports = router;
-
-import { Router } from "express";
-
-const router = Router();
 
 export default router;
