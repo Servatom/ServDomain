@@ -104,7 +104,10 @@ router.get(
 );
 
 router.post("/webhook", (req: Request, res: Response) => {
-  console.log(req.body);
+  if (req.body.event === "subscription.charged") {
+    const subscriptionEntity = req.body.payload.subscription.entity;
+    console.log({ ...subscriptionEntity });
+  }
   res.status(200).send("ok");
 });
 

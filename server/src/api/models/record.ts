@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { TRecordType } from "../../utils/types";
 
 interface IRecord extends Document {
   cloudflareID: string;
@@ -8,7 +9,7 @@ interface IRecord extends Document {
   ownerID: string;
   name: string;
   content: string;
-  type: string;
+  type: TRecordType;
   created_at: Date;
   updated_at: Date;
 }

@@ -4,7 +4,8 @@ interface IUser extends Document {
   phoneNumber: string;
   firebaseUID: string;
   email: string;
-  stripeCustomerId: string;
+  stripeCustomerID: string;
+  razorpayCustomerID: string;
   onWaitlist: boolean;
 }
 
@@ -19,7 +20,8 @@ const userScheme: Schema<IUser> = new mongoose.Schema({
   },
   firebaseUID: { type: String, required: true, unique: true },
   email: { type: String, required: false },
-  stripeCustomerId: { type: String, required: false },
+  stripeCustomerID: { type: String, required: false },
+  razorpayCustomerID: { type: String, required: false },
   onWaitlist: { type: Boolean, required: true, default: false },
 });
 
