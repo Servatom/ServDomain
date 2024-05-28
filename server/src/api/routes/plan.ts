@@ -107,6 +107,41 @@ router.post("/webhook", (req: Request, res: Response) => {
   if (req.body.event === "subscription.charged") {
     const subscriptionEntity = req.body.payload.subscription.entity;
     console.log({ ...subscriptionEntity });
+
+    // log:
+    // {
+    //   id: 'sub_OG2chJoM9DRdum',
+    //   entity: 'subscription',
+    //   plan_id: 'plan_OEj5fUJpj4yfEs',
+    //   customer_id: 'cust_OG1uBmOH673KZI',
+    //   status: 'active',
+    //   current_start: 1716927176,
+    //   current_end: 1719599400,
+    //   ended_at: null,
+    //   quantity: 1,
+    //   notes: {
+    //     ownerID: '664bb289832407580571bf7b',
+    //     domainID: '663be1d6162c5e1e2fa35985',
+    //     planLabel: 'hbd1.663be1d6162c5e1e2fa35985',
+    //     planType: 'vercel'
+    //   },
+    //   charge_at: 1719599400,
+    //   start_at: 1716927176,
+    //   end_at: 1745865000,
+    //   auth_attempts: 0,
+    //   total_count: 12,
+    //   paid_count: 1,
+    //   customer_notify: true,
+    //   created_at: 1716927160,
+    //   expire_by: null,
+    //   short_url: null,
+    //   has_scheduled_changes: false,
+    //   change_scheduled_at: null,
+    //   source: 'api',
+    //   payment_method: 'card',
+    //   offer_id: null,
+    //   remaining_count: 11
+    // }
   }
   res.status(200).send("ok");
 });

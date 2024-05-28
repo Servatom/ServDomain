@@ -21,14 +21,6 @@ import {
 } from "./api/routes";
 import { CustomError } from "./utils/types";
 
-mongoose
-  .connect(
-    `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWD}@${process.env.MONGODB_CLUSTER}.mongodb.net/?retryWrites=true&w=majority`
-  )
-  .then(() => {
-    console.log("Connected to database 🚀");
-  });
-
 const app = express();
 
 app.use(morgan("dev")); // middleware for logging requests
