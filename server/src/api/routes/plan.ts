@@ -1,8 +1,10 @@
-import { NextFunction, Response, Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import checkAuth from "../middleware/check-auth";
 import { CreatePlanRequest, PaymentVerifyRequest } from "./types";
 import { Plan } from "../models/plan";
 import crypto from "crypto";
+import { AuthenticatedRequest } from "../../utils/types";
+import mongoose from "mongoose";
 
 const router = Router();
 
@@ -13,16 +15,31 @@ router.post(
     const ownerID = req.userData?.userID || "x";
     const { domainID, planType, planLabel, razorpaySubscriptionID } = req.body;
 
-    const plan = new Plan({
-      ownerID: ownerID,
-      domainID: domainID,
-      planType: planType,
-      planLabel: planLabel,
-      status: "processing",
-      hasTxtRecord: false,
-      expiry: new Date(),
-      razorpaySubscriptionID: razorpaySubscriptionID,
-    });
+    try {
+      const plan = new Plan({
+        _id: new mongoose.Types.ObjectId(),
+        ownerID: ownerID,
+        domainID: domainID,
+        planType: planType,
+        planLabel: planLabel,
+        status: "processing",
+        hasTxtRecord: false,
+        expiry: new Date(),
+        razorpaySubscriptionID: razorpaySubscriptionID,
+      });
+
+      plan.save().then((result) => {
+        res.status(201).json({
+          message: "Plan Created",
+          data: result,
+        });
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        message: err,
+      });
+    }
   }
 );
 
@@ -66,21 +83,30 @@ router.post(
   }
 );
 
-// router.get("/", checkAuth, (req, res, next) => {
-//   const ownerID = req.userData.userID;
-//   Plan.find({ ownerID: ownerID })
-//     .then((result) => {
-//       res.status(200).json({
-//         data: result,
-//       });
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       res.status(500).json({
-//         error: err,
-//       });
-//     });
-// });
+router.get(
+  "/",
+  checkAuth,
+  (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    const ownerID = req.userData?.userID;
+    try {
+      Plan.find({ ownerID: ownerID }).then((result) => {
+        res.status(200).json({
+          data: result,
+        });
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        message: err,
+      });
+    }
+  }
+);
+
+router.post("/webhook", (req: Request, res: Response) => {
+  console.log(req.body);
+  res.status(200).send("ok");
+});
 
 // router.delete("/incomplete/:recordId", checkAuth, async (req, res, next) => {
 //   // delete record from records and reservedRecord collection
@@ -99,7 +125,5 @@ router.post(
 //     });
 //   }
 // });
-
-// module.exports = router;
 
 export default router;

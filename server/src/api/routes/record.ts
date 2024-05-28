@@ -11,7 +11,10 @@
 import { NextFunction, Response, Router } from "express";
 import checkAuth from "../middleware/check-auth";
 import { AuthenticatedRequest } from "../../utils/types";
-import { Record } from "../models/record";
+import { Record, ReservedRecord } from "../models/record";
+import { CreateRecordRequest } from "./types";
+import { Domain } from "../models/domain";
+import mongoose from "mongoose";
 const router = Router();
 
 router.get(
@@ -35,81 +38,78 @@ router.get(
   }
 );
 
-// router.post("/", checkAuth, async (req, res, next) => {
-//   const validTypes = ["A", "CNAME", "TXT"];
-//   const plans = ["personal", "vercel", "annual"];
-//   const { name, content, type, plan, domainId } = req.body;
-//   console.log(name, content, type, plan, domainId);
-//   if (
-//     !name ||
-//     !content ||
-//     !validTypes.includes(type) ||
-//     !plans.includes(plan) ||
-//     !domainId
-//   ) {
-//     return res.status(400).json({
-//       error: "Bad Request",
-//     });
-//   } else {
-//     try {
-//       let expiryDate = new Date();
-//       // find domain with domainId in db
-//       const domain = await Domain.findOne({ _id: domainId }).then((res) => res);
+router.post(
+  "/",
+  checkAuth,
+  async (req: CreateRecordRequest, res: Response, next: NextFunction) => {
+    const validTypes = ["A", "CNAME", "TXT"];
+    const plans = ["personal", "vercel", "annual"];
+    const { name, content, type, planID, domainID } = req.body;
+    if (!name || !content || !validTypes.includes(type) || !domainID) {
+      return res.status(400).json({
+        error: "Bad Request",
+      });
+    } else {
+      try {
+        let expiryDate = new Date();
+        // find domain with domainId in db
+        const domain = await Domain.findOne({ _id: domainID }).then(
+          (res) => res
+        );
 
-//       console.log(domain);
+        console.log(domain);
 
-//       if (!domain) {
-//         return res.status(404).json({
-//           message: "Domain not found",
-//         });
-//       }
+        if (!domain) {
+          return res.status(404).json({
+            message: "Domain not found",
+          });
+        }
 
-//       expiryDate.setDate(expiryDate.getDate() + 30);
-//       const record = new Record({
-//         _id: new mongoose.Types.ObjectId(),
-//         ownerID: req.userData.userID,
-//         name: name,
-//         content: content,
-//         type: type,
-//         plan: plan,
-//         domainID: domainId,
-//         expiry: expiryDate, // calculate expiry date from now
-//       });
+        const record = new Record({
+          _id: new mongoose.Types.ObjectId(),
+          ownerID: req.userData?.userID,
+          name: name,
+          content: content,
+          type: type,
+          planID: planID,
+          domainID: domainID,
+        });
 
-//       record
-//         .save()
-//         .then((result) => {
-//           console.log(result);
-//           const reservedRecord = new ReservedRecord({
-//             _id: new mongoose.Types.ObjectId(),
-//             recordID: result._id,
-//             ownerID: req.userData.userID,
-//             name: name + "." + domain.domainName,
-//           });
-//           reservedRecord
-//             .save()
-//             .then((x) => {
-//               return res.status(201).json({
-//                 message: "Subdomain Reserved!",
-//                 recordId: result._id,
-//               });
-//             })
-//             .catch((err) => {
-//               throw err;
-//             });
-//         })
-//         .catch((err) => {
-//           throw err;
-//         });
-//     } catch (err) {
-//       console.log(err);
-//       return res.status(500).json({
-//         message: "Internal Server Error",
-//         error: err,
-//       });
-//     }
-//   }
-// });
+        record
+          .save()
+          .then((result) => {
+            console.log(result);
+            const reservedRecord = new ReservedRecord({
+              _id: new mongoose.Types.ObjectId(),
+              recordID: result._id,
+              ownerID: req.userData?.userID,
+              name: name + "." + domain.domainName,
+            });
+            reservedRecord
+              .save()
+              .then((x) => {
+                return res.status(201).json({
+                  message: "Subdomain Reserved!",
+                  recordId: result._id,
+                });
+              })
+              .catch((err) => {
+                throw err;
+              });
+          })
+          .catch((err) => {
+            throw err;
+          });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          message: "Internal Server Error",
+          error: err,
+        });
+      }
+    }
+  }
+);
 
 // router.post(
 //   "/webhook",

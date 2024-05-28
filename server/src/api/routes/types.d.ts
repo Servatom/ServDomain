@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { AuthenticatedRequest } from "../../utils/types";
+import { AuthenticatedRequest, TRecordType } from "../../utils/types";
 import { IUser } from "../models/user";
 import { IPlan } from "../models/plan";
 
@@ -31,6 +31,16 @@ export interface SubdomainCheckRequest extends Request {
 
 export interface CreatePlanRequest extends AuthenticatedRequest {
   body: IPlan;
+}
+
+export interface CreateRecordRequest extends AuthenticatedRequest {
+  body: {
+    name: string;
+    content: string;
+    type: TRecordType;
+    planID: string;
+    domainID: string;
+  };
 }
 
 export interface PaymentVerifyRequest extends AuthenticatedRequest {

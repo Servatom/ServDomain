@@ -1,10 +1,10 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 interface IRecord extends Document {
-  cloudflareId: string;
-  cloudflareZoneId: string;
+  cloudflareID: string;
+  cloudflareZoneID: string;
   domainID: string;
-  planId: string;
+  planID: string;
   ownerID: string;
   name: string;
   content: string;
@@ -22,10 +22,10 @@ interface IReservedRecord extends Document {
 
 const recordSchema: Schema<IRecord> = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
-  cloudflareId: { type: String, required: true, default: "x" },
-  cloudflareZoneId: { type: String, required: true, default: "x" },
+  cloudflareID: { type: String, required: true, default: "x" },
+  cloudflareZoneID: { type: String, required: true, default: "x" },
   domainID: { type: String, required: true, ref: "Domain" },
-  planId: { type: String, required: true, ref: "Plan" },
+  planID: { type: String, required: true, ref: "Plan" },
   ownerID: { type: String, required: true, ref: "User" },
   name: { type: String, required: true, unique: true },
   content: { type: String, required: true },
