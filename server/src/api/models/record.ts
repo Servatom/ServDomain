@@ -10,6 +10,9 @@ interface IRecord extends Document {
   name: string;
   content: string;
   type: TRecordType;
+  ttl: number;
+  proxied: boolean;
+  isActive: boolean;
   created_at: Date;
   updated_at: Date;
 }
@@ -31,6 +34,9 @@ const recordSchema: Schema<IRecord> = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   content: { type: String, required: true },
   type: { type: String, required: true },
+  ttl: { type: Number, required: true, default: 1 },
+  proxied: { type: Boolean, required: true, default: false },
+  isActive: { type: Boolean, required: true, default: false },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
