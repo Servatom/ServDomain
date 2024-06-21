@@ -43,7 +43,6 @@ router.post(
   checkAuth,
   async (req: CreateRecordRequest, res: Response, next: NextFunction) => {
     const validTypes = ["A", "CNAME", "TXT"];
-    const plans = ["personal", "vercel", "annual"];
     const { name, content, type, planID, domainID } = req.body;
     if (!name || !content || !validTypes.includes(type) || !domainID) {
       return res.status(400).json({

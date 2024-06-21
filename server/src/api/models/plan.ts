@@ -10,7 +10,9 @@ interface IPlan extends Document {
   status: TPlanStatus;
   expiry: Date;
   razorpaySubscriptionID: string;
+  isDeleted: boolean;
   created_at: Date;
+  updated_at: Date;
 }
 
 const planSchema: Schema<IPlan> = new mongoose.Schema({
@@ -23,7 +25,9 @@ const planSchema: Schema<IPlan> = new mongoose.Schema({
   hasTxtRecord: { type: Boolean, required: true, default: false },
   expiry: { type: Date, required: true },
   razorpaySubscriptionID: { type: String, required: true, default: "x" },
+  isDeleted: { type: Boolean, required: true, default: false },
   created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
 const Plan = mongoose.model<IPlan>("Plan", planSchema);
