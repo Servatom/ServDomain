@@ -79,6 +79,10 @@ router.post(
           message: err,
         });
       }
+    } else {
+      res.status(400).json({
+        message: "Invalid Signature",
+      });
     }
   }
 );
