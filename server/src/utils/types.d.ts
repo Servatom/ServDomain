@@ -21,3 +21,10 @@ export type TPlanStatus =
   | "expired"
   | "cancelled"
   | "overdue";
+
+export type TRecordUpdateConfig = {
+  content?: string;
+  proxied?: boolean;
+  ttl?: number;
+  type?: TRecordType;
+};

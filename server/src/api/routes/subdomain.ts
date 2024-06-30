@@ -1,9 +1,8 @@
 import express, { NextFunction, Response } from "express";
-import { axiosInstance } from "../../axios";
-import { decrypt } from "../../utils/utils";
 import { ReservedRecord } from "../models/record";
 import { Domain } from "../models/domain";
 import { SubdomainCheckRequest } from "./types";
+import { cloudflareService } from "../services/cloudflare";
 
 const router = express.Router();
 
@@ -29,7 +28,7 @@ router.get(
       }
 
       const restrictedSubdomains = [
-        // "www",
+        "www",
         // "api",
         // "app",
         // "mail",
@@ -85,7 +84,7 @@ router.get(
           available: false,
         });
       } else {
-        const subdomainList = await getSubdomainList(
+        const subdomainList = await cloudflareService.getSubdomainList(
           domain.cfZoneID,
           domain.cfAuthToken
         );
@@ -102,25 +101,5 @@ router.get(
     }
   }
 );
-
-const getSubdomainList = async (cfZoneID: string, cfAuthToken: string) => {
-  const subdomainList: string[] = [];
-  await axiosInstance
-    .get(`/${cfZoneID}/dns_records`, {
-      headers: {
-        Authorization: `Bearer ${decrypt(cfAuthToken)}`,
-      },
-    })
-    .then((response) => {
-      response.data.result.forEach((record: { name: string }) => {
-        subdomainList.push(record.name);
-      });
-    })
-    .catch((error: any) => {
-      console.log(error);
-    });
-
-  return subdomainList;
-};
 
 export default router;
